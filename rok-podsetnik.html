@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rok Podsetnik — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD;
+    --paper-deep:#EDE4C8;
+    --ink:#1E2A38;
+    --ink-soft:#4A5A68;
+    --stamp:#A32638;
+    --ruled:#2F5D8C;
+    --line:#C9BE9C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+
+  header.top{
+    background:var(--ink);
+    color:var(--paper);
+    padding:0.9rem 1.25rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.06em;
+  }
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+
+  .wrap{max-width:760px; margin:0 auto; padding:2.2rem 1.25rem 0;}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    font-weight:600;
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.7rem;
+    font-weight:700;
+    margin:0 0 0.4rem;
+    letter-spacing:-0.01em;
+  }
+  .sub{color:var(--ink-soft); font-size:0.98rem; max-width:56ch; margin:0 0 1.8rem;}
+
+  .toggle-row{display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.6rem;}
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.82rem;
+    padding:0.55rem 1rem;
+    border:1px solid var(--ink);
+    background:var(--paper-deep);
+    color:var(--ink);
+    cursor:pointer;
+    border-radius:2px;
+  }
+  .toggle-btn.active{background:var(--ink); color:var(--paper);}
+
+  /* hero countdown */
+  .hero{
+    position:relative;
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:2px;
+    padding:1.8rem 1.5rem;
+    margin-bottom:1.8rem;
+    text-align:center;
+  }
+  .hero .corner{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.12em;
+    color:#B9AE8C;
+    margin-bottom:0.8rem;
+  }
+  .hero .days{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:3.6rem;
+    font-weight:700;
+    color:#F0C419;
+    line-height:1;
+  }
+  .hero .days-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.06em;
+    color:#D9D2BC;
+    margin:0.3rem 0 1rem;
+  }
+  .hero .deadline-name{
+    font-size:1.15rem;
+    font-weight:600;
+  }
+  .hero .deadline-date{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    color:#B9AE8C;
+    margin-top:0.3rem;
+  }
+
+  /* timeline */
+  .timeline{margin-bottom:1.8rem;}
+  .tl-section-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    font-weight:600;
+    margin:1.4rem 0 0.6rem;
+  }
+  .tl-section-label:first-child{margin-top:0;}
+  .tl-item{
+    display:flex;
+    align-items:center;
+    gap:0.9rem;
+    background:var(--paper-deep);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:0.75rem 0.9rem;
+    margin-bottom:0.55rem;
+  }
+  .tl-item.next{
+    border-color:var(--stamp);
+    border-width:2px;
+  }
+  .tl-date-box{
+    font-family:'IBM Plex Mono', monospace;
+    text-align:center;
+    min-width:52px;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:0.35rem 0.4rem;
+  }
+  .tl-date-box .d{font-size:1.1rem; font-weight:700; line-height:1;}
+  .tl-date-box .m{font-size:0.62rem; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink-soft);}
+  .tl-content{flex:1;}
+  .tl-title{font-size:0.9rem; font-weight:600;}
+  .tl-meta{font-size:0.78rem; color:var(--ink-soft); margin-top:0.15rem;}
+  .tl-badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:0.05em;
+    color:var(--stamp);
+    font-weight:700;
+    white-space:nowrap;
+  }
+
+  details{
+    background:var(--paper-deep);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:0.9rem 1.1rem;
+    margin-bottom:1rem;
+    font-size:0.86rem;
+    color:var(--ink-soft);
+  }
+  details summary{
+    cursor:pointer;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink);
+    letter-spacing:0.03em;
+  }
+  details p{margin:0.7rem 0 0.2rem;}
+  details code{background:var(--paper); padding:0.1rem 0.3rem; border-radius:2px;}
+
+  footer.disclaimer{
+    max-width:760px; margin:0 auto; padding:0 1.25rem;
+    font-size:0.78rem; color:var(--ink-soft);
+    border-top:1px solid var(--line); padding-top:1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <a href="index.html">← nazad na sve alate</a>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">Rubrika 01 — Porez i status · Alat 04</p>
+  <h1>Rok Podsetnik</h1>
+  <p class="sub">Pregled svih poreskih rokova na jednom mestu — kvartalne prijave za frilensere i mesečne obaveze za paušalce, uvek računato od današnjeg dana.</p>
+
+  <div class="toggle-row" id="mode-toggle">
+    <button type="button" class="toggle-btn active" data-mode="oba">Prikaži oba</button>
+    <button type="button" class="toggle-btn" data-mode="frilenser">Samo frilenser</button>
+    <button type="button" class="toggle-btn" data-mode="pausalac">Samo paušalac</button>
+  </div>
+
+  <div class="hero" id="hero">
+    <div class="corner">SLEDEĆI ROK</div>
+    <div class="days" id="hero-days">—</div>
+    <div class="days-label">dana preostalo</div>
+    <div class="deadline-name" id="hero-name">—</div>
+    <div class="deadline-date" id="hero-date">—</div>
+  </div>
+
+  <div class="timeline" id="timeline"></div>
+
+  <details>
+    <summary>Kako se računaju rokovi?</summary>
+    <p><b>Frilenser</b> — kvartalna poreska prijava (obrazac PP OPO-K) podnosi se u roku od 30 dana od kraja kvartala: za 1. kvartal do <code>30. aprila</code>, za 2. kvartal do <code>30. jula</code>, za 3. kvartal do <code>30. oktobra</code>, za 4. kvartal do <code>30. januara</code> naredne godine.</p>
+    <p><b>Paušalac</b> — mesečna uplata poreza i doprinosa po rešenju dospeva do <code>15. u mesecu</code> za prethodni mesec. Ako planiraš da nastaviš ili prvi put uđeš u paušal za narednu godinu, zahtev se podnosi najkasnije do <code>31. oktobra</code> tekuće godine.</p>
+    <p>Ako poslednji dan roka pada u neradni dan (vikend ili praznik), rok se automatski pomera na prvi naredni radni dan — ovaj alat prikazuje kalendarski datum, pa tu razliku od par dana uzmi u obzir oko praznika.</p>
+  </details>
+</div>
+
+<footer class="disclaimer">
+  Ovaj alat je informativnog karaktera i ne predstavlja poreski savet. Za zvanične i ažurne rokove proveri <a href="https://frilenseri.purs.gov.rs" target="_blank" rel="noopener">frilenseri.purs.gov.rs</a> ili <a href="https://www.purs.gov.rs" target="_blank" rel="noopener">Poresku upravu</a>.
+</footer>
+
+<script>
+  const MESECI = ['JAN','FEB','MAR','APR','MAJ','JUN','JUL','AVG','SEP','OKT','NOV','DEC'];
+  const MESECI_PUNI = ['januar','februar','mart','april','maj','jun','jul','avgust','septembar','oktobar','novembar','decembar'];
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  function fmtDate(d){
+    return `${d.getDate()}. ${MESECI_PUNI[d.getMonth()]} ${d.getFullYear()}.`;
+  }
+
+  function daysUntil(d){
+    return Math.round((d - today) / 86400000);
+  }
+
+  // --- Generate frilenser quarterly deadlines ---
+  function frilenserDeadlines(){
+    const items = [];
+    for (let y = today.getFullYear() - 1; y <= today.getFullYear() + 1; y++){
+      items.push({ date: new Date(y, 3, 30), title: 'Prijava za 1. kvartal', meta: 'Frilenser · Obrazac PP OPO-K', tag: 'frilenser' });
+      items.push({ date: new Date(y, 6, 30), title: 'Prijava za 2. kvartal', meta: 'Frilenser · Obrazac PP OPO-K', tag: 'frilenser' });
+      items.push({ date: new Date(y, 9, 30), title: 'Prijava za 3. kvartal', meta: 'Frilenser · Obrazac PP OPO-K', tag: 'frilenser' });
+      items.push({ date: new Date(y, 0, 30), title: 'Prijava za 4. kvartal (prethodne godine)', meta: 'Frilenser · Obrazac PP OPO-K', tag: 'frilenser' });
+    }
+    return items;
+  }
+
+  // --- Generate paušalac monthly deadlines (15th of each month) ---
+  function pausalacMonthly(){
+    const items = [];
+    for (let y = today.getFullYear() - 1; y <= today.getFullYear() + 1; y++){
+      for (let m = 0; m < 12; m++){
+        const prevMonthName = MESECI_PUNI[(m + 11) % 12];
+        items.push({
+          date: new Date(y, m, 15),
+          title: 'Mesečna uplata (rešenje)',
+          meta: `Paušalac · porez i doprinosi za ${prevMonthName}`,
+          tag: 'pausalac'
+        });
+      }
+    }
+    return items;
+  }
+
+  // --- Paušalac annual re-registration ---
+  function pausalacAnnual(){
+    const items = [];
+    for (let y = today.getFullYear() - 1; y <= today.getFullYear() + 1; y++){
+      items.push({
+        date: new Date(y, 9, 31),
+        title: 'Zahtev za paušalni status za narednu godinu',
+        meta: 'Paušalac · registracija/nastavak paušala',
+        tag: 'pausalac'
+      });
+    }
+    return items;
+  }
+
+  let allDeadlines = [...frilenserDeadlines(), ...pausalacMonthly(), ...pausalacAnnual()];
+
+  let mode = 'oba';
+  const toggleBtns = document.querySelectorAll('#mode-toggle .toggle-btn');
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.dataset.mode;
+      render();
+    });
+  });
+
+  function render(){
+    let filtered = allDeadlines.filter(d => mode === 'oba' || d.tag === mode);
+    filtered = filtered.filter(d => daysUntil(d.date) >= 0);
+    filtered.sort((a, b) => a.date - b.date);
+
+    // hero = nearest
+    const next = filtered[0];
+    if (next){
+      document.getElementById('hero-days').textContent = daysUntil(next.date);
+      document.getElementById('hero-name').textContent = next.title;
+      document.getElementById('hero-date').textContent = fmtDate(next.date) + ' · ' + next.meta;
+    }
+
+    // timeline: show next 10, grouped by month
+    const timeline = document.getElementById('timeline');
+    timeline.innerHTML = '';
+    const upcoming = filtered.slice(0, 10);
+    let lastMonthKey = null;
+
+    upcoming.forEach((item, idx) => {
+      const monthKey = item.date.getFullYear() + '-' + item.date.getMonth();
+      if (monthKey !== lastMonthKey){
+        const label = document.createElement('div');
+        label.className = 'tl-section-label';
+        label.textContent = MESECI_PUNI[item.date.getMonth()] + ' ' + item.date.getFullYear() + '.';
+        timeline.appendChild(label);
+        lastMonthKey = monthKey;
+      }
+
+      const row = document.createElement('div');
+      row.className = 'tl-item' + (idx === 0 ? ' next' : '');
+
+      const dNum = daysUntil(item.date);
+      row.innerHTML = `
+        <div class="tl-date-box">
+          <div class="d">${item.date.getDate()}</div>
+          <div class="m">${MESECI[item.date.getMonth()]}</div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title">${item.title}</div>
+          <div class="tl-meta">${item.meta}</div>
+        </div>
+        <div class="tl-badge">${dNum === 0 ? 'DANAS' : (dNum === 1 ? 'SUTRA' : 'za ' + dNum + 'd')}</div>
+      `;
+      timeline.appendChild(row);
+    });
+  }
+
+  render();
+</script>
+
+</body>
+</html>

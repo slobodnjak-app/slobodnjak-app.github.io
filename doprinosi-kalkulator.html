@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doprinosi Kalkulator — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD;
+    --paper-deep:#EDE4C8;
+    --ink:#1E2A38;
+    --ink-soft:#4A5A68;
+    --stamp:#A32638;
+    --ruled:#2F5D8C;
+    --line:#C9BE9C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+
+  header.top{
+    background:var(--ink);
+    color:var(--paper);
+    padding:0.9rem 1.25rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.06em;
+  }
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+
+  .wrap{max-width:760px; margin:0 auto; padding:2.2rem 1.25rem 0;}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    font-weight:600;
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.7rem;
+    font-weight:700;
+    margin:0 0 0.4rem;
+    letter-spacing:-0.01em;
+  }
+  .sub{color:var(--ink-soft); font-size:0.98rem; max-width:56ch; margin:0 0 1.8rem;}
+
+  .form-panel{
+    position:relative;
+    background:var(--paper-deep);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:1.6rem 1.4rem 1.4rem;
+    margin-bottom:1.6rem;
+  }
+  .form-panel::before{
+    content:"RUBRIKA 01 · ALAT 03";
+    position:absolute;
+    top:-0.65rem; left:1rem;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.08em;
+    font-weight:600;
+  }
+  .form-panel::after{
+    content:"OBRAZAC DOP-03";
+    position:absolute;
+    top:-0.65rem; right:1rem;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+  }
+
+  .field{margin-bottom:1.1rem;}
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:0.4rem;
+  }
+  .field input[type=number]{
+    width:100%;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.35rem;
+    font-weight:600;
+    color:var(--ink);
+    background:var(--paper);
+    border:none;
+    border-bottom:2px solid var(--ink);
+    padding:0.5rem 0.2rem;
+    outline:none;
+  }
+  .field input[type=number]:focus{border-bottom-color:var(--stamp);}
+  .hint{font-size:0.8rem; color:var(--ink-soft); margin-top:0.35rem;}
+
+  .quick-fill{
+    display:flex;
+    gap:0.5rem;
+    flex-wrap:wrap;
+    margin-top:0.6rem;
+  }
+  .quick-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    padding:0.4rem 0.7rem;
+    border:1px solid var(--ink-soft);
+    background:var(--paper);
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-radius:2px;
+  }
+  .quick-btn:hover{border-color:var(--ink); color:var(--ink);}
+
+  .toggle-row{display:flex; gap:0.6rem; flex-wrap:wrap;}
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    padding:0.5rem 0.9rem;
+    border:1px solid var(--ink);
+    background:var(--paper);
+    color:var(--ink);
+    cursor:pointer;
+    border-radius:2px;
+  }
+  .toggle-btn.active{background:var(--ink); color:var(--paper);}
+
+  .result-card{
+    position:relative;
+    background:var(--paper-deep);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:1.3rem 1.2rem 1.4rem;
+    margin-bottom:1.6rem;
+    display:none;
+  }
+  .result-card .corner{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+    margin-bottom:0.6rem;
+  }
+  .line{
+    display:flex;
+    justify-content:space-between;
+    font-size:0.9rem;
+    padding:0.4rem 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .line .val{font-family:'IBM Plex Mono', monospace;}
+  .line.total{
+    border-bottom:none;
+    border-top:2px solid var(--ink);
+    margin-top:0.5rem;
+    padding-top:0.65rem;
+    font-weight:700;
+    font-size:1.05rem;
+  }
+
+  .periods{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0.8rem;
+    margin-top:1.2rem;
+  }
+  @media (max-width:520px){.periods{grid-template-columns:1fr;}}
+  .period-box{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:0.8rem 0.9rem;
+    text-align:center;
+  }
+  .period-box .plabel{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .period-box .pval{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.15rem;
+    font-weight:700;
+    margin-top:0.3rem;
+  }
+
+  details{
+    background:var(--paper-deep);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:0.9rem 1.1rem;
+    margin-bottom:1rem;
+    font-size:0.86rem;
+    color:var(--ink-soft);
+  }
+  details summary{
+    cursor:pointer;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink);
+    letter-spacing:0.03em;
+  }
+  details p{margin:0.7rem 0 0.2rem;}
+  details code{background:var(--paper); padding:0.1rem 0.3rem; border-radius:2px;}
+
+  footer.disclaimer{
+    max-width:760px; margin:0 auto; padding:0 1.25rem;
+    font-size:0.78rem; color:var(--ink-soft);
+    border-top:1px solid var(--line); padding-top:1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <a href="index.html">← nazad na sve alate</a>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">Rubrika 01 — Porez i status · Alat 03</p>
+  <h1>Doprinosi Kalkulator</h1>
+  <p class="sub">Unesi mesečnu osnovicu i izračunaj koliko iznose porez, PIO i zdravstveni doprinos — za paušalce, preduzetnike koji sami uplaćuju doprinose, ili proveru sopstvenog rešenja.</p>
+
+  <div class="form-panel">
+    <div class="field">
+      <label for="osnovica">Mesečna osnovica (RSD)</label>
+      <input type="number" id="osnovica" placeholder="npr. 51297" inputmode="decimal" min="0">
+      <p class="hint">Ovo je iznos iz tvog rešenja Poreske uprave (paušalna osnovica) ili osnovica koju sam biraš za samostalnu uplatu doprinosa.</p>
+      <div class="quick-fill">
+        <button type="button" class="quick-btn" data-fill="51297">Minimalna osnovica (51.297 RSD)</button>
+        <button type="button" class="quick-btn" data-fill="732820">Maksimalna osnovica (732.820 RSD)</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Da li si već osiguran po drugom osnovu (stalno zaposlenje)?</label>
+      <div class="toggle-row" id="osiguranje-toggle">
+        <button type="button" class="toggle-btn active" data-val="ne">Nisam — ovo mi je jedini status</button>
+        <button type="button" class="toggle-btn" data-val="da">Jesam — ovo mi je dopunska delatnost</button>
+      </div>
+      <p class="hint">Ako poslodavac već uplaćuje osnovne doprinose za tebe, PIO i zdravstveno se ne dupliciraju po ovoj osnovici.</p>
+    </div>
+  </div>
+
+  <div class="result-card" id="result">
+    <div class="corner">OBRAČUN NA MESEČNOM NIVOU</div>
+    <div class="line"><span>Porez na dohodak (10%)</span><span class="val" id="r-porez"></span></div>
+    <div class="line"><span>PIO doprinos (24%)</span><span class="val" id="r-pio"></span></div>
+    <div class="line"><span>Zdravstveni doprinos (10,3%)</span><span class="val" id="r-zdravstvo"></span></div>
+    <div class="line total"><span>Ukupno mesečno</span><span class="val" id="r-mesecno"></span></div>
+
+    <div class="periods">
+      <div class="period-box">
+        <div class="plabel">Kvartalno (× 3)</div>
+        <div class="pval" id="r-kvartalno"></div>
+      </div>
+      <div class="period-box">
+        <div class="plabel">Godišnje (× 12)</div>
+        <div class="pval" id="r-godisnje"></div>
+      </div>
+    </div>
+  </div>
+
+  <details>
+    <summary>Kako se ovo računa?</summary>
+    <p>Kod paušalnog oporezivanja, Poreska uprava rešenjem određuje tvoju mesečnu <b>osnovicu</b> — na osnovu šifre delatnosti, opštine, godina staža i drugih koeficijenata. Na tu osnovicu se primenjuju tri stope: porez na dohodak <code>10%</code>, PIO doprinos <code>24%</code> i zdravstveni doprinos <code>10,3%</code>.</p>
+    <p>Kod samostalne uplate doprinosa (npr. ako nisi paušalac, ali želiš da uplaćuješ staž), osnovicu biraš sam u zakonom propisanom rasponu — od najniže do najviše propisane osnovice za tekuću godinu.</p>
+    <p>Ovaj alat ne određuje tvoju tačnu paušalnu osnovicu — to radi isključivo Poreska uprava rešenjem, na osnovu tvoje delatnosti i opštine. Za procenu osnovice pre registracije koristi zvanični kalkulator Ministarstva privrede.</p>
+  </details>
+
+  <details>
+    <summary>Parametri korišćeni u obračunu (ažurirano: jul 2026)</summary>
+    <p>Najniža mesečna osnovica doprinosa za 2026: <code>51.297 RSD</code> · Najviša: <code>732.820 RSD</code></p>
+    <p>Stope: porez <code>10%</code>, PIO <code>24%</code>, zdravstveno <code>10,3%</code></p>
+    <p>Ove osnovice se usklađuju jednom godišnje sa prosečnom zaradom u Srbiji. Za tačnu paušalnu osnovicu i zvanično rešenje proveri <a href="https://informator.preduzetnistvo.gov.rs/kalkulator" target="_blank" rel="noopener">kalkulator Ministarstva privrede</a> ili <a href="https://www.purs.gov.rs" target="_blank" rel="noopener">Poresku upravu</a>.</p>
+  </details>
+</div>
+
+<footer class="disclaimer">
+  Ovaj alat je informativnog karaktera i ne predstavlja poreski savet. Tvoju tačnu paušalnu osnovicu i mesečni iznos određuje isključivo rešenje Poreske uprave — za konačan obračun proveri zvanične izvore ili se konsultuj sa knjigovođom.
+</footer>
+
+<script>
+  const RATES = { porez: 0.10, pio: 0.24, zdravstvo: 0.103 };
+  let osiguran = false;
+
+  const fmt = n => Math.round(n).toLocaleString('sr-RS') + ' RSD';
+
+  const osnovicaInput = document.getElementById('osnovica');
+  const resultCard = document.getElementById('result');
+  const toggleBtns = document.querySelectorAll('#osiguranje-toggle .toggle-btn');
+  const quickBtns = document.querySelectorAll('.quick-btn');
+
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      osiguran = btn.dataset.val === 'da';
+      calculate();
+    });
+  });
+
+  quickBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      osnovicaInput.value = btn.dataset.fill;
+      calculate();
+    });
+  });
+
+  function calculate(){
+    const osnovica = parseFloat(osnovicaInput.value);
+    if (!osnovica || osnovica <= 0){
+      resultCard.style.display = 'none';
+      return;
+    }
+    resultCard.style.display = 'block';
+
+    const porez = osnovica * RATES.porez;
+    const pio = osiguran ? 0 : osnovica * RATES.pio;
+    const zdravstvo = osiguran ? 0 : osnovica * RATES.zdravstvo;
+    const mesecno = porez + pio + zdravstvo;
+
+    document.getElementById('r-porez').textContent = fmt(porez);
+    document.getElementById('r-pio').textContent = osiguran ? 'ne plaća se' : fmt(pio);
+    document.getElementById('r-zdravstvo').textContent = osiguran ? 'ne plaća se' : fmt(zdravstvo);
+    document.getElementById('r-mesecno').textContent = fmt(mesecno);
+    document.getElementById('r-kvartalno').textContent = fmt(mesecno * 3);
+    document.getElementById('r-godisnje').textContent = fmt(mesecno * 12);
+  }
+
+  osnovicaInput.addEventListener('input', calculate);
+</script>
+
+</body>
+</html>

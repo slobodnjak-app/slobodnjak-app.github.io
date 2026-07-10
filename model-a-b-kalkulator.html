@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model A ili Model B? — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD;
+    --paper-deep:#EDE4C8;
+    --ink:#1E2A38;
+    --ink-soft:#4A5A68;
+    --stamp:#A32638;
+    --ruled:#2F5D8C;
+    --line:#C9BE9C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px);
+    background-size: 100% 2.1em;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+
+  header.top{
+    background:var(--ink);
+    color:var(--paper);
+    padding:0.9rem 1.25rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.06em;
+  }
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:2.2rem 1.25rem 0;
+  }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    font-weight:600;
+    margin:0 0 0.6rem;
+  }
+
+  h1{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.7rem;
+    font-weight:700;
+    margin:0 0 0.4rem;
+    letter-spacing:-0.01em;
+  }
+
+  .sub{
+    color:var(--ink-soft);
+    font-size:0.98rem;
+    max-width:56ch;
+    margin:0 0 1.8rem;
+  }
+
+  /* form panel styled like a carbon-copy tax form */
+  .form-panel{
+    position:relative;
+    background:var(--paper-deep);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:1.6rem 1.4rem 1.4rem;
+    margin-bottom:1.6rem;
+  }
+  .form-panel::before{
+    content:"RUBRIKA 01 · ALAT 01";
+    position:absolute;
+    top:-0.65rem;
+    left:1rem;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.08em;
+    font-weight:600;
+  }
+  .form-panel::after{
+    content:"OBRAZAC MA/MB-01";
+    position:absolute;
+    top:-0.65rem;
+    right:1rem;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+  }
+
+  .field{
+    margin-bottom:1.1rem;
+  }
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:0.4rem;
+  }
+  .field input[type=number]{
+    width:100%;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.35rem;
+    font-weight:600;
+    color:var(--ink);
+    background:var(--paper);
+    border:none;
+    border-bottom:2px solid var(--ink);
+    padding:0.5rem 0.2rem;
+    outline:none;
+  }
+  .field input[type=number]:focus{border-bottom-color:var(--stamp);}
+  .hint{font-size:0.8rem; color:var(--ink-soft); margin-top:0.35rem;}
+
+  .toggle-row{
+    display:flex;
+    gap:0.6rem;
+    flex-wrap:wrap;
+  }
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    padding:0.5rem 0.9rem;
+    border:1px solid var(--ink);
+    background:var(--paper);
+    color:var(--ink);
+    cursor:pointer;
+    border-radius:2px;
+  }
+  .toggle-btn.active{
+    background:var(--ink);
+    color:var(--paper);
+  }
+
+  /* results */
+  .results{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1rem;
+    margin-bottom:1.6rem;
+  }
+  @media (max-width:600px){
+    .results{grid-template-columns:1fr;}
+  }
+  .result-card{
+    position:relative;
+    background:var(--paper-deep);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:1.2rem 1.1rem 1.3rem;
+    overflow:hidden;
+  }
+  .result-card .corner{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+    margin-bottom:0.5rem;
+  }
+  .result-card h2{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.05rem;
+    margin:0 0 0.9rem;
+  }
+  .line{
+    display:flex;
+    justify-content:space-between;
+    font-size:0.88rem;
+    padding:0.32rem 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .line.total{
+    border-bottom:none;
+    border-top:2px solid var(--ink);
+    margin-top:0.4rem;
+    padding-top:0.55rem;
+    font-weight:700;
+    font-size:0.95rem;
+  }
+  .line .val{font-family:'IBM Plex Mono', monospace;}
+  .neto{
+    margin-top:0.9rem;
+    padding-top:0.7rem;
+    border-top:1px solid var(--ink);
+  }
+  .neto .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .neto .amount{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.5rem;
+    font-weight:700;
+    color:var(--ink);
+  }
+
+  .winner-stamp{
+    position:absolute;
+    top:0.9rem;
+    right:0.9rem;
+    width:76px;
+    height:76px;
+    border:3px solid var(--stamp);
+    border-radius:50%;
+    color:var(--stamp);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    font-weight:700;
+    letter-spacing:0.03em;
+    line-height:1.15;
+    transform:rotate(-14deg);
+    opacity:0.9;
+  }
+  .winner-stamp span{display:block;}
+
+  .verdict{
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:2px;
+    padding:1.1rem 1.2rem;
+    margin-bottom:1.6rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.9rem;
+  }
+  .verdict b{color:#F0C419;}
+
+  details{
+    background:var(--paper-deep);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:0.9rem 1.1rem;
+    margin-bottom:1rem;
+    font-size:0.86rem;
+    color:var(--ink-soft);
+  }
+  details summary{
+    cursor:pointer;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink);
+    letter-spacing:0.03em;
+  }
+  details p{margin:0.7rem 0 0.2rem;}
+  details code{
+    background:var(--paper);
+    padding:0.1rem 0.3rem;
+    border-radius:2px;
+  }
+
+  footer.disclaimer{
+    max-width:760px;
+    margin:0 auto;
+    padding:0 1.25rem;
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    border-top:1px solid var(--line);
+    padding-top:1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <a href="index.html">← nazad na sve alate</a>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">Rubrika 01 — Porez i status · Alat 01</p>
+  <h1>Model A ili Model B?</h1>
+  <p class="sub">Unesi kvartalni bruto prihod od inostranih klijenata i vidi koji model samooporezivanja frilensera ti se više isplati za taj kvartal.</p>
+
+  <div class="form-panel">
+    <div class="field">
+      <label for="prihod">Kvartalni bruto prihod (RSD)</label>
+      <input type="number" id="prihod" placeholder="npr. 300000" inputmode="decimal" min="0">
+      <p class="hint">Ukupan iznos koji ti je legao na račun (Payoneer, Wise, devizni račun...) u jednom kvartalu, pre bilo kakvih odbitaka.</p>
+    </div>
+
+    <div class="field">
+      <label>Da li si već zdravstveno osiguran po drugom osnovu?</label>
+      <div class="toggle-row" id="osiguranje-toggle">
+        <button type="button" class="toggle-btn active" data-val="ne">Nisam (frilens mi je jedini status)</button>
+        <button type="button" class="toggle-btn" data-val="da">Jesam (zaposlen/penzioner/preduzetnik)</button>
+      </div>
+      <p class="hint">Ako si već osiguran po drugom osnovu, ne plaćaš dodatni doprinos za zdravstveno ni po jednom modelu.</p>
+    </div>
+  </div>
+
+  <div id="verdict-box"></div>
+
+  <div class="results" id="results" style="display:none;">
+    <div class="result-card" id="card-a">
+      <div class="corner">MODEL A</div>
+      <h2>Viši neoporezivi prag</h2>
+      <div class="line"><span>Normirani troškovi</span><span class="val" id="a-trosak"></span></div>
+      <div class="line"><span>Oporeziva osnovica</span><span class="val" id="a-osnovica"></span></div>
+      <div class="line"><span>Porez (20%)</span><span class="val" id="a-porez"></span></div>
+      <div class="line"><span>PIO doprinos (24%)</span><span class="val" id="a-pio"></span></div>
+      <div class="line"><span>Zdravstveni doprinos</span><span class="val" id="a-zdravstvo"></span></div>
+      <div class="line total"><span>Ukupno dažbine</span><span class="val" id="a-ukupno"></span></div>
+      <div class="neto">
+        <div class="label">Ostaje ti (neto)</div>
+        <div class="amount" id="a-neto">—</div>
+      </div>
+    </div>
+
+    <div class="result-card" id="card-b">
+      <div class="corner">MODEL B</div>
+      <h2>Niža poreska stopa</h2>
+      <div class="line"><span>Normirani troškovi</span><span class="val" id="b-trosak"></span></div>
+      <div class="line"><span>Oporeziva osnovica</span><span class="val" id="b-osnovica"></span></div>
+      <div class="line"><span>Porez (10%)</span><span class="val" id="b-porez"></span></div>
+      <div class="line"><span>PIO doprinos (24%, min. primenjen)</span><span class="val" id="b-pio"></span></div>
+      <div class="line"><span>Zdravstveni doprinos</span><span class="val" id="b-zdravstvo"></span></div>
+      <div class="line total"><span>Ukupno dažbine</span><span class="val" id="b-ukupno"></span></div>
+      <div class="neto">
+        <div class="label">Ostaje ti (neto)</div>
+        <div class="amount" id="b-neto">—</div>
+      </div>
+    </div>
+  </div>
+
+  <details>
+    <summary>Kako se ovo računa?</summary>
+    <p><b>Model A</b> — od prihoda se oduzima fiksan neoporezivi iznos (normirani troškovi). Na ostatak (osnovicu) plaća se porez od 20% i PIO doprinos od 24%. Zdravstveni doprinos je 10,3% osnovice, ali ne manje od zakonskog minimuma po kvartalu — isplativ za niže i neredovne prihode.</p>
+    <p><b>Model B</b> — normirani troškovi su niži fiksni iznos <i>plus</i> 34% prihoda, pa osnovica ispada manja. Na nju se plaća samo 10% poreza, ali PIO doprinos ima svoj zakonski minimum po kvartalu koji se plaća čak i kad je osnovica niska — isplativiji za veće i redovne prihode.</p>
+    <p>Model biraš svaki kvartal iznova prilikom prijave na portalu <code>frilenseri.purs.gov.rs</code> — ništa te ne vezuje za prošli izbor.</p>
+  </details>
+
+  <details>
+    <summary>Parametri korišćeni u obračunu (ažurirano: jul 2026)</summary>
+    <p>Normirani troškovi Model A: <code>110.647 RSD</code>/kvartal · Model B: <code>66.733 RSD + 34% prihoda</code></p>
+    <p>Stope Model A: porez <code>20%</code>, PIO <code>24%</code>, zdravstvo <code>10,3%</code> (min. 4.789 RSD/kvartal)</p>
+    <p>Stope Model B: porez <code>10%</code>, PIO <code>24%</code> (min. 25.218 RSD/kvartal), zdravstvo <code>10,3%</code> (min. 4.789 RSD/kvartal)</p>
+    <p>Ovi iznosi se periodično usklađuju (obično jednom godišnje). Za tačan i zvaničan obračun uvek proveri kalkulator na <a href="https://frilenseri.purs.gov.rs" target="_blank" rel="noopener">frilenseri.purs.gov.rs</a> pre podnošenja prijave.</p>
+  </details>
+</div>
+
+<footer class="disclaimer">
+  Ovaj alat je informativnog karaktera i ne predstavlja poreski savet. Slobodnjak ne snosi odgovornost za tačnost obračuna — za konačnu odluku proveri zvanični portal ili se konsultuj sa knjigovođom.
+</footer>
+
+<script>
+  const PARAMS = {
+    A: { trosakFiksni: 110647, porez: 0.20, pio: 0.24, zdravstvoStopa: 0.103, zdravstvoMin: 4789, pioMin: 0 },
+    B: { trosakFiksni: 66733, trosakProcenat: 0.34, porez: 0.10, pio: 0.24, pioMin: 25218, zdravstvoStopa: 0.103, zdravstvoMin: 4789 }
+  };
+
+  let osiguran = false;
+
+  const fmt = n => Math.round(n).toLocaleString('sr-RS') + ' RSD';
+
+  const prihodInput = document.getElementById('prihod');
+  const resultsBox = document.getElementById('results');
+  const verdictBox = document.getElementById('verdict-box');
+  const toggleBtns = document.querySelectorAll('#osiguranje-toggle .toggle-btn');
+
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      osiguran = btn.dataset.val === 'da';
+      calculate();
+    });
+  });
+
+  function calculateModelA(prihod){
+    const p = PARAMS.A;
+    const osnovica = Math.max(0, prihod - p.trosakFiksni);
+    const porez = osnovica * p.porez;
+    const pio = osnovica * p.pio;
+    let zdravstvo = 0;
+    if (prihod > 0 && !osiguran) {
+      zdravstvo = Math.max(osnovica * p.zdravstvoStopa, p.zdravstvoMin);
+    }
+    const ukupno = porez + pio + zdravstvo;
+    return { trosak: p.trosakFiksni, osnovica, porez, pio, zdravstvo, ukupno, neto: prihod - ukupno };
+  }
+
+  function calculateModelB(prihod){
+    const p = PARAMS.B;
+    const trosak = p.trosakFiksni + prihod * p.trosakProcenat;
+    const osnovica = Math.max(0, prihod - trosak);
+    const porez = osnovica * p.porez;
+    let pio = 0;
+    if (prihod > 0) {
+      pio = Math.max(osnovica * p.pio, p.pioMin);
+    }
+    let zdravstvo = 0;
+    if (prihod > 0 && !osiguran) {
+      zdravstvo = Math.max(osnovica * p.zdravstvoStopa, p.zdravstvoMin);
+    }
+    const ukupno = porez + pio + zdravstvo;
+    return { trosak, osnovica, porez, pio, zdravstvo, ukupno, neto: prihod - ukupno };
+  }
+
+  function fillCard(prefix, r){
+    document.getElementById(prefix + '-trosak').textContent = fmt(r.trosak);
+    document.getElementById(prefix + '-osnovica').textContent = fmt(r.osnovica);
+    document.getElementById(prefix + '-porez').textContent = fmt(r.porez);
+    document.getElementById(prefix + '-pio').textContent = fmt(r.pio);
+    document.getElementById(prefix + '-zdravstvo').textContent = fmt(r.zdravstvo);
+    document.getElementById(prefix + '-ukupno').textContent = fmt(r.ukupno);
+    document.getElementById(prefix + '-neto').textContent = fmt(r.neto);
+  }
+
+  function clearStamps(){
+    document.querySelectorAll('.winner-stamp').forEach(el => el.remove());
+  }
+
+  function calculate(){
+    const prihod = parseFloat(prihodInput.value);
+    if (!prihod || prihod <= 0){
+      resultsBox.style.display = 'none';
+      verdictBox.innerHTML = '';
+      return;
+    }
+    resultsBox.style.display = 'grid';
+
+    const a = calculateModelA(prihod);
+    const b = calculateModelB(prihod);
+    fillCard('a', a);
+    fillCard('b', b);
+
+    clearStamps();
+    const boljiA = a.ukupno <= b.ukupno;
+    const razlika = Math.abs(a.ukupno - b.ukupno);
+    const winnerCard = document.getElementById(boljiA ? 'card-a' : 'card-b');
+    const stamp = document.createElement('div');
+    stamp.className = 'winner-stamp';
+    stamp.innerHTML = '<span>ISPLATIVIJI</span><span>MODEL</span>';
+    winnerCard.appendChild(stamp);
+
+    verdictBox.innerHTML = `<div class="verdict">Za prihod od <b>${fmt(prihod)}</b> u ovom kvartalu, <b>Model ${boljiA ? 'A' : 'B'}</b> ti donosi <b>${fmt(razlika)}</b> manje ukupnih dažbina od Modela ${boljiA ? 'B' : 'A'}.</div>`;
+  }
+
+  prihodInput.addEventListener('input', calculate);
+</script>
+
+</body>
+</html>

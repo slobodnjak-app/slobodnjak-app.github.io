@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frilenser ili Paušalac? — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD;
+    --paper-deep:#EDE4C8;
+    --ink:#1E2A38;
+    --ink-soft:#4A5A68;
+    --stamp:#A32638;
+    --ruled:#2F5D8C;
+    --line:#C9BE9C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+
+  header.top{
+    background:var(--ink);
+    color:var(--paper);
+    padding:0.9rem 1.25rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.06em;
+  }
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+
+  .wrap{max-width:760px; margin:0 auto; padding:2.2rem 1.25rem 0;}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    font-weight:600;
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.7rem;
+    font-weight:700;
+    margin:0 0 0.4rem;
+    letter-spacing:-0.01em;
+  }
+  .sub{color:var(--ink-soft); font-size:0.98rem; max-width:56ch; margin:0 0 1.8rem;}
+
+  .form-panel{
+    position:relative;
+    background:var(--paper-deep);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:1.7rem 1.4rem 1.5rem;
+    margin-bottom:1.6rem;
+  }
+  .form-panel::before{
+    content:"RUBRIKA 01 · ALAT 02";
+    position:absolute;
+    top:-0.65rem; left:1rem;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.08em;
+    font-weight:600;
+  }
+  .form-panel::after{
+    content:"OBRAZAC FP-02";
+    position:absolute;
+    top:-0.65rem; right:1rem;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+  }
+
+  .q{margin-bottom:1.5rem; padding-bottom:1.4rem; border-bottom:1px dashed var(--line);}
+  .q:last-child{border-bottom:none; margin-bottom:0.4rem; padding-bottom:0;}
+  .q-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    color:var(--stamp);
+    font-weight:700;
+    letter-spacing:0.05em;
+  }
+  .q-text{
+    font-size:0.95rem;
+    font-weight:600;
+    margin:0.25rem 0 0.75rem;
+  }
+  .opts{display:flex; flex-direction:column; gap:0.5rem;}
+  .opt{
+    display:flex;
+    align-items:flex-start;
+    gap:0.6rem;
+    padding:0.55rem 0.7rem;
+    border:1px solid var(--line);
+    border-radius:2px;
+    cursor:pointer;
+    background:var(--paper);
+    font-size:0.87rem;
+    transition:border-color 0.15s;
+  }
+  .opt:hover{border-color:var(--ink-soft);}
+  .opt.selected{
+    border-color:var(--ink);
+    background:#E6DCC0;
+  }
+  .opt input{margin-top:0.2rem; accent-color:var(--stamp);}
+
+  .calc-btn{
+    width:100%;
+    background:var(--stamp);
+    color:var(--paper);
+    border:none;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:700;
+    font-size:0.95rem;
+    letter-spacing:0.05em;
+    padding:0.9rem;
+    border-radius:2px;
+    cursor:pointer;
+    margin-top:0.4rem;
+  }
+  .calc-btn:hover{background:#8a1f2f;}
+  .calc-btn:disabled{background:var(--ink-soft); cursor:not-allowed; opacity:0.5;}
+
+  .verdict{
+    display:none;
+    position:relative;
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:2px;
+    padding:1.5rem 1.4rem;
+    margin-bottom:1.6rem;
+  }
+  .verdict .corner{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:0.1em;
+    color:#B9AE8C;
+    margin-bottom:0.6rem;
+  }
+  .verdict h2{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.5rem;
+    margin:0 0 0.9rem;
+    color:#F0C419;
+  }
+  .verdict .reasoning{font-size:0.88rem; margin:0 0 0.9rem; color:#D9D2BC;}
+  .verdict ul{margin:0 0 0.9rem; padding-left:1.2rem; font-size:0.87rem;}
+  .verdict li{margin-bottom:0.4rem;}
+  .verdict .warn{
+    background:rgba(163,38,56,0.25);
+    border:1px solid var(--stamp);
+    border-radius:2px;
+    padding:0.7rem 0.9rem;
+    font-size:0.85rem;
+    margin-top:0.9rem;
+  }
+  .verdict .stamp-badge{
+    position:absolute;
+    top:1.2rem; right:1.2rem;
+    width:70px; height:70px;
+    border:3px solid var(--stamp);
+    border-radius:50%;
+    color:var(--stamp);
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.6rem; font-weight:700;
+    transform:rotate(-12deg);
+    background:rgba(245,239,221,0.05);
+  }
+
+  details{
+    background:var(--paper-deep);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:0.9rem 1.1rem;
+    margin-bottom:1rem;
+    font-size:0.86rem;
+    color:var(--ink-soft);
+  }
+  details summary{
+    cursor:pointer;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink);
+    letter-spacing:0.03em;
+  }
+  details p{margin:0.7rem 0 0.2rem;}
+  details code{background:var(--paper); padding:0.1rem 0.3rem; border-radius:2px;}
+
+  footer.disclaimer{
+    max-width:760px; margin:0 auto; padding:0 1.25rem;
+    font-size:0.78rem; color:var(--ink-soft);
+    border-top:1px solid var(--line); padding-top:1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <a href="index.html">← nazad na sve alate</a>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">Rubrika 01 — Porez i status · Alat 02</p>
+  <h1>Frilenser ili Paušalac?</h1>
+  <p class="sub">Odgovori na šest kratkih pitanja i dobij preporuku koji poslovni status ti se najviše isplati, sa obrazloženjem zašto.</p>
+
+  <div class="form-panel">
+
+    <div class="q" data-q="1">
+      <div class="q-num">PITANJE 1 / 6</div>
+      <p class="q-text">Odakle ti najvećim delom dolazi prihod?</p>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q1" value="strano"> Skoro isključivo iz inostranstva (klijenti van Srbije)</label>
+        <label class="opt"><input type="radio" name="q1" value="mix"> Kombinacija — i domaći i strani klijenti</label>
+        <label class="opt"><input type="radio" name="q1" value="domace"> Uglavnom domaće firme</label>
+      </div>
+    </div>
+
+    <div class="q" data-q="2">
+      <div class="q-num">PITANJE 2 / 6</div>
+      <p class="q-text">Kako izgleda tvoj mesečni prihod?</p>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q2" value="redovan"> Redovan i predvidiv, otprilike ista visina svaki mesec</label>
+        <label class="opt"><input type="radio" name="q2" value="nestabilan"> Znatno varira iz meseca u mesec, ima i praznih meseci</label>
+        <label class="opt"><input type="radio" name="q2" value="pocinjem"> Tek počinjem, još ne znam kako će izgledati</label>
+      </div>
+    </div>
+
+    <div class="q" data-q="3">
+      <div class="q-num">PITANJE 3 / 6</div>
+      <p class="q-text">Koliki je tvoj prosečan mesečni prihod?</p>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q3" value="nizak"> Ispod 100.000 RSD</label>
+        <label class="opt"><input type="radio" name="q3" value="srednji"> 100.000 – 250.000 RSD</label>
+        <label class="opt"><input type="radio" name="q3" value="visok"> Preko 250.000 RSD</label>
+      </div>
+    </div>
+
+    <div class="q" data-q="4">
+      <div class="q-num">PITANJE 4 / 6</div>
+      <p class="q-text">Da li si već zdravstveno i penziono osiguran po drugom osnovu (stalno zaposlenje, itd.)?</p>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q4" value="da"> Da, ovo mi je dopunska zarada</label>
+        <label class="opt"><input type="radio" name="q4" value="ne"> Ne, ovo mi je jedini izvor osiguranja</label>
+      </div>
+    </div>
+
+    <div class="q" data-q="5">
+      <div class="q-num">PITANJE 5 / 6</div>
+      <p class="q-text">Da li ti je važno pravo na bolovanje, porodiljsko odsustvo ili mogućnost apliciranja za kredit kao preduzetnik?</p>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q5" value="da"> Da, planiram to u skorije vreme</label>
+        <label class="opt"><input type="radio" name="q5" value="ne"> Ne, trenutno mi ne treba</label>
+      </div>
+    </div>
+
+    <div class="q" data-q="6">
+      <div class="q-num">PITANJE 6 / 6</div>
+      <p class="q-text">Čime se baviš?</p>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q6" value="dozvoljena"> Programiranje, dizajn, konsalting, prevođenje, edukacija i slične usluge</label>
+        <label class="opt"><input type="radio" name="q6" value="iskljucena"> Trgovina, ugostiteljstvo, reklamiranje/marketing agencija, finansijsko ili računovodstveno savetovanje</label>
+      </div>
+    </div>
+
+    <button class="calc-btn" id="calc-btn" disabled>Daj mi preporuku</button>
+  </div>
+
+  <div class="verdict" id="verdict">
+    <div class="stamp-badge" id="stamp-badge"></div>
+    <div class="corner">PREPORUKA</div>
+    <h2 id="verdict-title">—</h2>
+    <p class="reasoning" id="verdict-summary"></p>
+    <ul id="verdict-reasons"></ul>
+    <div class="warn" id="verdict-warn" style="display:none;"></div>
+  </div>
+
+  <details>
+    <summary>Zašto ova preporuka, na osnovu čega?</summary>
+    <p><b>Domaći klijenti</b> — frilenserski status je zamišljen za prihod iz inostranstva. Ako te angažuje domaća firma, ona mora da doplati doprinose na tvoju naknadu (efektivno i do ~65% skuplje za nju), pa retko koja domaća firma na to pristaje. Paušalac tu nema taj problem.</p>
+    <p><b>Visina i stabilnost prihoda</b> — paušalac plaća isti fiksni mesečni iznos bez obzira na prihod, pa mu odgovaraju viši i redovni prihodi. Frilenser plaća samo na ono što stvarno zaradi, pa mu odgovaraju niži ili nestabilni prihodi (nema obaveze u mesecima/kvartalima bez prihoda).</p>
+    <p><b>Dopunska zarada</b> — ako si već osiguran po drugom osnovu (stalni posao), frilens model ti ne nosi dodatni teret zdravstvenog doprinosa, pa je administrativno jednostavniji izbor.</p>
+    <p><b>Prava preduzetnika</b> — samo paušalac ima status pravnog lica: pravo na bolovanje, porodiljsko odsustvo, mogućnost kredita i subvencija.</p>
+    <p><b>Isključene delatnosti</b> — zakon zabranjuje paušalni status za određene delatnosti (trgovina, ugostiteljstvo, reklamiranje, finansijsko savetovanje i dr.) — u tom slučaju frilens (ili DOO/preduzetnik na stvarnom prihodu) ostaje jedina opcija.</p>
+    <p>Ovo je grubi vodič za orijentaciju, ne zamenjuje tačnu računicu. Za precizno poređenje troškova koristi <a href="model-a-b-kalkulator.html">Model A/B kalkulator</a> i uporedi sa mesečnim rešenjem koje bi dobio kao paušalac na <a href="https://frilenseri.purs.gov.rs" target="_blank" rel="noopener">frilenseri.purs.gov.rs</a>.</p>
+  </details>
+</div>
+
+<footer class="disclaimer">
+  Ovaj alat je informativnog karaktera i ne predstavlja poreski ni pravni savet. Za konačnu odluku proveri zvanične izvore (Poreska uprava, APR) ili se konsultuj sa knjigovođom.
+</footer>
+
+<script>
+  const answers = {};
+  const totalQ = 6;
+
+  document.querySelectorAll('.opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const input = opt.querySelector('input');
+      const name = input.name;
+      document.querySelectorAll(`input[name="${name}"]`).forEach(i => {
+        i.closest('.opt').classList.remove('selected');
+      });
+      input.checked = true;
+      opt.classList.add('selected');
+      answers[name] = input.value;
+      checkComplete();
+    });
+  });
+
+  const calcBtn = document.getElementById('calc-btn');
+
+  function checkComplete(){
+    calcBtn.disabled = Object.keys(answers).length < totalQ;
+  }
+
+  calcBtn.addEventListener('click', () => {
+    let score = 0;
+    const reasons = [];
+    let hardConstraint = null;
+
+    // Q1 - klijenti
+    if (answers.q1 === 'domace') {
+      score += 4;
+      reasons.push('Prihod ti uglavnom dolazi od domaćih firmi — frilenserski status praktično ne funkcioniše u toj saradnji jer isplatilac mora znatno da doplati doprinose.');
+    } else if (answers.q1 === 'mix') {
+      score += 1;
+      reasons.push('Imaš i domaće klijente, što ide u prilog paušalu jer im tako možeš fakturisati bez dodatnih troškova za njih.');
+    } else {
+      score -= 2;
+      reasons.push('Prihod ti dolazi iz inostranstva, što je tačno ono za šta je frilenserski model i zamišljen.');
+    }
+
+    // Q2 - stabilnost
+    if (answers.q2 === 'redovan') {
+      score += 2;
+      reasons.push('Prihod ti je redovan i predvidiv — fiksni mesečni iznos paušala ti tu ne predstavlja rizik.');
+    } else if (answers.q2 === 'nestabilan') {
+      score -= 2;
+      reasons.push('Prihod ti znatno varira — kod frilensera plaćaš samo na ono što stvarno zaradiš, dok bi paušalac morao da plati isti iznos i u slabijim mesecima.');
+    } else {
+      score -= 1;
+      reasons.push('Tek počinješ, pa je manji rizik da ostaneš na frilens modelu dok ne vidiš kako ti prihod izgleda u praksi.');
+    }
+
+    // Q3 - visina
+    if (answers.q3 === 'visok') {
+      score += 3;
+      reasons.push('Sa prihodom preko 250.000 RSD mesečno, frilenserski doprinosi i porez rastu proporcionalno, dok paušalac plaća fiksno — obično ispadne jeftinije.');
+    } else if (answers.q3 === 'srednji') {
+      score += 1;
+    } else {
+      score -= 2;
+      reasons.push('Sa prihodom ispod 100.000 RSD mesečno, fiksna paušalna obaveza bi ti verovatno bila veći teret nego frilens dažbine.');
+    }
+
+    // Q4 - osiguranje
+    if (answers.q4 === 'da') {
+      score -= 2;
+      reasons.push('Već si osiguran po drugom osnovu, pa ti frilens ne nosi dodatni trošak zdravstvenog doprinosa i ostaje administrativno lakši za dopunsku zaradu.');
+    } else {
+      score += 1;
+    }
+
+    // Q5 - prava
+    if (answers.q5 === 'da') {
+      score += 2;
+      reasons.push('Bitna su ti prava koja nosi status preduzetnika (bolovanje, porodiljsko, kredit) — to dobijaš samo kao paušalac.');
+    }
+
+    // Q6 - delatnost (hard constraint)
+    if (answers.q6 === 'iskljucena') {
+      hardConstraint = 'iskljucena';
+    } else {
+      score += 1;
+    }
+
+    // verdict
+    const verdictBox = document.getElementById('verdict');
+    const title = document.getElementById('verdict-title');
+    const summary = document.getElementById('verdict-summary');
+    const reasonsList = document.getElementById('verdict-reasons');
+    const warnBox = document.getElementById('verdict-warn');
+    const stampBadge = document.getElementById('stamp-badge');
+
+    reasonsList.innerHTML = '';
+    reasons.forEach(r => {
+      const li = document.createElement('li');
+      li.textContent = r;
+      reasonsList.appendChild(li);
+    });
+
+    if (hardConstraint === 'iskljucena') {
+      title.textContent = 'Frilenser (paušal ti nije zakonski opcija)';
+      stampBadge.innerHTML = 'FRILENSER';
+      summary.textContent = 'Delatnost koju si naveo je zakonom isključena iz paušalnog oporezivanja.';
+      warnBox.style.display = 'block';
+      warnBox.textContent = 'Za tvoju delatnost, paušalni status nije dostupan bez obzira na ostale odgovore. Opcije su ti frilenserski model (ako radiš sa stranim klijentima) ili preduzetnik/DOO na stvarnom prihodu uz vođenje poslovnih knjiga. Proveri tačan spisak isključenih delatnosti kod APR-a.';
+    } else if (score >= 2) {
+      title.textContent = 'Paušalac';
+      stampBadge.innerHTML = 'PAUŠALAC';
+      summary.textContent = 'Na osnovu odgovora, registracija kao preduzetnik paušalac ti se verovatno više isplati.';
+      warnBox.style.display = 'none';
+    } else {
+      title.textContent = 'Frilenser';
+      stampBadge.innerHTML = 'FRILENSER';
+      summary.textContent = 'Na osnovu odgovora, frilenserski model samooporezivanja ti trenutno više odgovara.';
+      warnBox.style.display = 'none';
+    }
+
+    verdictBox.style.display = 'block';
+    verdictBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator Faktura — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD;
+    --paper-deep:#EDE4C8;
+    --ink:#1E2A38;
+    --ink-soft:#4A5A68;
+    --stamp:#A32638;
+    --ruled:#2F5D8C;
+    --line:#C9BE9C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+
+  header.top{
+    background:var(--ink);
+    color:var(--paper);
+    padding:0.9rem 1.25rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.06em;
+  }
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+
+  .wrap{max-width:820px; margin:0 auto; padding:2.2rem 1.25rem 0;}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    font-weight:600;
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.7rem;
+    font-weight:700;
+    margin:0 0 0.4rem;
+    letter-spacing:-0.01em;
+  }
+  .sub{color:var(--ink-soft); font-size:0.98rem; max-width:60ch; margin:0 0 1.5rem;}
+
+  .toggle-row{display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.6rem;}
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.82rem;
+    padding:0.55rem 1rem;
+    border:1px solid var(--ink);
+    background:var(--paper-deep);
+    color:var(--ink);
+    cursor:pointer;
+    border-radius:2px;
+  }
+  .toggle-btn.active{background:var(--ink); color:var(--paper);}
+
+  .form-panel{
+    position:relative;
+    background:var(--paper-deep);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:1.7rem 1.4rem 1.5rem;
+    margin-bottom:1.8rem;
+  }
+  .form-panel::before{
+    content:"RUBRIKA 03 · ALAT 07";
+    position:absolute;
+    top:-0.65rem; left:1rem;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.08em;
+    font-weight:600;
+  }
+
+  .form-section-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    font-weight:600;
+    margin:1.4rem 0 0.8rem;
+  }
+  .form-section-title:first-child{margin-top:0;}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;}
+  @media (max-width:560px){.grid2{grid-template-columns:1fr;}}
+
+  .field{margin-bottom:0.9rem;}
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:0.3rem;
+  }
+  .field input, .field select{
+    width:100%;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.92rem;
+    color:var(--ink);
+    background:var(--paper);
+    border:none;
+    border-bottom:2px solid var(--ink);
+    padding:0.45rem 0.2rem;
+    outline:none;
+  }
+  .field input:focus, .field select:focus{border-bottom-color:var(--stamp);}
+
+  /* line items */
+  .items-table{width:100%; margin-bottom:0.8rem;}
+  .item-row{
+    display:grid;
+    grid-template-columns:1fr 70px 100px 100px 32px;
+    gap:0.5rem;
+    align-items:end;
+    margin-bottom:0.6rem;
+  }
+  @media (max-width:640px){
+    .item-row{grid-template-columns:1fr; gap:0.4rem;}
+  }
+  .item-row input{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.88rem;
+    background:var(--paper);
+    border:none;
+    border-bottom:1px solid var(--ink);
+    padding:0.4rem 0.2rem;
+    outline:none;
+    width:100%;
+  }
+  .item-row input:focus{border-bottom-color:var(--stamp);}
+  .del-item{
+    background:none;
+    border:1px solid var(--ink-soft);
+    color:var(--ink-soft);
+    font-size:0.75rem;
+    border-radius:2px;
+    cursor:pointer;
+    height:34px;
+  }
+  .del-item:hover{border-color:var(--stamp); color:var(--stamp);}
+  .add-item-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    background:none;
+    border:1px dashed var(--ink-soft);
+    color:var(--ink-soft);
+    padding:0.5rem 0.8rem;
+    border-radius:2px;
+    cursor:pointer;
+    margin-bottom:0.4rem;
+  }
+  .add-item-btn:hover{border-color:var(--ink); color:var(--ink);}
+
+  .print-btn{
+    width:100%;
+    background:var(--stamp);
+    color:var(--paper);
+    border:none;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:700;
+    font-size:0.95rem;
+    letter-spacing:0.05em;
+    padding:0.9rem;
+    border-radius:2px;
+    cursor:pointer;
+    margin-top:0.6rem;
+  }
+  .print-btn:hover{background:#8a1f2f;}
+
+  /* ===== invoice preview (this is what gets printed) ===== */
+  .preview-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:0.7rem;
+  }
+  #invoice-preview{
+    background:#ffffff;
+    color:#1a1a1a;
+    border:1px solid #ccc;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+    padding:2.5rem 2.5rem 2rem;
+    margin-bottom:2rem;
+    font-family:'IBM Plex Sans', sans-serif;
+  }
+  .inv-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    border-bottom:2px solid var(--ruled);
+    padding-bottom:1rem;
+    margin-bottom:1.3rem;
+  }
+  .inv-header h2{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.6rem;
+    margin:0;
+    letter-spacing:0.02em;
+  }
+  .inv-header .inv-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    color:#555;
+    margin-top:0.3rem;
+  }
+  .inv-dates{text-align:right; font-size:0.82rem; color:#444;}
+  .inv-dates div{margin-bottom:0.15rem;}
+  .inv-parties{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1.5rem;
+    margin-bottom:1.5rem;
+  }
+  .party-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:#888;
+    margin-bottom:0.35rem;
+  }
+  .party-block{font-size:0.9rem; white-space:pre-line;}
+  .party-block .pname{font-weight:700; margin-bottom:0.2rem;}
+
+  table.inv-items{width:100%; border-collapse:collapse; margin-bottom:1.2rem; font-size:0.88rem;}
+  table.inv-items th{
+    text-align:left;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:#888;
+    padding:0.5rem 0.4rem;
+    border-bottom:2px solid #ccc;
+  }
+  table.inv-items td{
+    padding:0.55rem 0.4rem;
+    border-bottom:1px solid #e5e5e5;
+  }
+  table.inv-items td.num, table.inv-items th.num{text-align:right; font-family:'IBM Plex Mono', monospace;}
+
+  .inv-total-row{
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom:1.4rem;
+  }
+  .inv-total-box{
+    text-align:right;
+    min-width:220px;
+  }
+  .inv-total-box .tlabel{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:#888;
+  }
+  .inv-total-box .tval{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.4rem;
+    font-weight:700;
+    margin-top:0.2rem;
+  }
+
+  .inv-clause{
+    font-size:0.78rem;
+    color:#555;
+    border-top:1px solid #e5e5e5;
+    padding-top:0.9rem;
+    margin-bottom:1.3rem;
+  }
+
+  .inv-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-top:2rem;
+  }
+  .inv-footer .signature-line{
+    border-top:1px solid #999;
+    width:180px;
+    padding-top:0.3rem;
+    font-size:0.72rem;
+    color:#888;
+    text-align:center;
+  }
+
+  details{
+    background:var(--paper-deep);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:0.9rem 1.1rem;
+    margin-bottom:1rem;
+    font-size:0.86rem;
+    color:var(--ink-soft);
+  }
+  details summary{
+    cursor:pointer;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink);
+    letter-spacing:0.03em;
+  }
+  details p{margin:0.7rem 0 0.2rem;}
+
+  footer.disclaimer{
+    max-width:820px; margin:0 auto; padding:0 1.25rem;
+    font-size:0.78rem; color:var(--ink-soft);
+    border-top:1px solid var(--line); padding-top:1rem;
+  }
+
+  @media print{
+    body{background:#fff; padding:0;}
+    header.top, .wrap > .eyebrow, .wrap > h1, .wrap > .sub,
+    .toggle-row, .form-panel, .preview-label, details, footer.disclaimer{
+      display:none !important;
+    }
+    .wrap{max-width:none; padding:0; margin:0;}
+    #invoice-preview{box-shadow:none; border:none; padding:0;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <a href="index.html">← nazad na sve alate</a>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">Rubrika 03 — Dokumenti · Alat 07</p>
+  <h1>Generator Faktura</h1>
+  <p class="sub">Popuni podatke i dobij fakturu spremnu za štampu ili čuvanje kao PDF (Ctrl/Cmd+P → Sačuvaj kao PDF).</p>
+
+  <div class="toggle-row" id="mode-toggle">
+    <button type="button" class="toggle-btn active" data-mode="pausalac">Paušalac (domaći klijent, RSD)</button>
+    <button type="button" class="toggle-btn" data-mode="frilenser">Frilenser (strani klijent, EN)</button>
+  </div>
+
+  <div class="form-panel">
+    <div class="form-section-title">Izdavalac (ti)</div>
+    <div class="grid2">
+      <div class="field"><label id="lbl-izd-naziv">Ime i prezime / naziv radnje</label><input type="text" id="izd-naziv" placeholder="Marko Marković PR..."></div>
+      <div class="field"><label id="lbl-izd-adresa">Adresa</label><input type="text" id="izd-adresa" placeholder="Ulica broj, Beograd"></div>
+      <div class="field"><label id="lbl-izd-pib">PIB</label><input type="text" id="izd-pib" placeholder="123456789"></div>
+      <div class="field"><label id="lbl-izd-mb">Matični broj</label><input type="text" id="izd-mb" placeholder="12345678"></div>
+      <div class="field"><label id="lbl-izd-racun">Tekući račun</label><input type="text" id="izd-racun" placeholder="160-0000000000000-00"></div>
+      <div class="field"><label id="lbl-izd-email">Email</label><input type="text" id="izd-email" placeholder="ime@email.com"></div>
+    </div>
+
+    <div class="form-section-title" id="lbl-primalac-title">Primalac (klijent)</div>
+    <div class="grid2">
+      <div class="field"><label id="lbl-prim-naziv">Naziv klijenta</label><input type="text" id="prim-naziv" placeholder="Firma d.o.o."></div>
+      <div class="field"><label id="lbl-prim-adresa">Adresa</label><input type="text" id="prim-adresa" placeholder="Adresa klijenta"></div>
+      <div class="field"><label id="lbl-prim-pib">PIB / VAT broj</label><input type="text" id="prim-pib" placeholder="opciono"></div>
+    </div>
+
+    <div class="form-section-title" id="lbl-detalji-title">Detalji fakture</div>
+    <div class="grid2">
+      <div class="field"><label id="lbl-broj">Broj fakture</label><input type="text" id="inv-broj" placeholder="1/2026"></div>
+      <div class="field"><label id="lbl-mesto">Mesto izdavanja</label><input type="text" id="inv-mesto" placeholder="Beograd" value="Beograd"></div>
+      <div class="field"><label id="lbl-datum-izd">Datum izdavanja</label><input type="date" id="inv-datum-izd"></div>
+      <div class="field"><label id="lbl-datum-prom">Datum prometa usluge</label><input type="date" id="inv-datum-prom"></div>
+      <div class="field"><label id="lbl-valuta">Valuta</label>
+        <select id="inv-valuta">
+          <option value="RSD">RSD</option>
+          <option value="EUR">EUR</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-section-title" id="lbl-stavke-title">Stavke</div>
+    <div id="items-container"></div>
+    <button type="button" class="add-item-btn" id="add-item">+ Dodaj stavku</button>
+
+    <button class="print-btn" id="print-btn">Štampaj / Sačuvaj kao PDF</button>
+  </div>
+
+  <p class="preview-label">Pregled fakture</p>
+  <div id="invoice-preview">
+    <div class="inv-header">
+      <div>
+        <h2 id="p-title">FAKTURA</h2>
+        <div class="inv-num" id="p-broj-display"></div>
+      </div>
+      <div class="inv-dates">
+        <div id="p-mesto-datum"></div>
+        <div id="p-datum-prom-display"></div>
+      </div>
+    </div>
+
+    <div class="inv-parties">
+      <div>
+        <div class="party-label" id="p-izdavalac-label">IZDAVALAC</div>
+        <div class="party-block" id="p-izdavalac"></div>
+      </div>
+      <div>
+        <div class="party-label" id="p-primalac-label">PRIMALAC</div>
+        <div class="party-block" id="p-primalac"></div>
+      </div>
+    </div>
+
+    <table class="inv-items">
+      <thead>
+        <tr>
+          <th id="th-opis">Opis usluge</th>
+          <th class="num" id="th-kol">Količina</th>
+          <th class="num" id="th-cena">Jed. cena</th>
+          <th class="num" id="th-iznos">Iznos</th>
+        </tr>
+      </thead>
+      <tbody id="p-items-body"></tbody>
+    </table>
+
+    <div class="inv-total-row">
+      <div class="inv-total-box">
+        <div class="tlabel" id="p-total-label">UKUPNO</div>
+        <div class="tval" id="p-total"></div>
+      </div>
+    </div>
+
+    <div class="inv-clause" id="p-clause"></div>
+
+    <div class="inv-footer">
+      <div></div>
+      <div class="signature-line" id="p-signature-label">Potpis</div>
+    </div>
+  </div>
+
+  <details>
+    <summary>Šta mora da sadrži faktura paušalca?</summary>
+    <p>Prema propisima, faktura mora sadržati: naziv i podatke izdavaoca (PIB, matični broj, adresa), podatke primaoca, broj i datum izdavanja, mesto izdavanja, datum prometa usluge, opis i vrednost usluge, i napomenu da PDV nije obračunat (za obveznike van sistema PDV-a). Ako bilo koji od ovih elemenata nedostaje, faktura formalno nije validna.</p>
+    <p>Za frilensere koji fakturišu strane klijente, formalni zahtevi su fleksibilniji (nema domaćeg zakona o fakturi jer klijent nije u srpskom PDV sistemu), ali je i dalje dobra praksa imati jasan dokument sa svim istim informacijama, radi sopstvene evidencije i eventualne poreske kontrole.</p>
+  </details>
+</div>
+
+<footer class="disclaimer">
+  Ovaj alat je informativnog karaktera i ne predstavlja pravni ni knjigovodstveni savet. Proveri da li faktura sadrži sve elemente propisane za tvoj status pre slanja klijentu.
+</footer>
+
+<script>
+  let mode = 'pausalac';
+  let itemCount = 0;
+
+  const LABELS = {
+    pausalac: {
+      title: 'FAKTURA',
+      izdLabel: 'IZDAVALAC', primLabel: 'PRIMALAC',
+      opis: 'Opis usluge', kol: 'Količina', cena: 'Jed. cena', iznos: 'Iznos',
+      total: 'UKUPNO ZA UPLATU',
+      signature: 'Potpis',
+      clause: 'Poreski obveznik nije u sistemu PDV-a — PDV nije obračunat na fakturi u skladu sa članom 33. Zakona o porezu na dodatu vrednost.',
+      fields: {
+        naziv:'Ime i prezime / naziv radnje', adresa:'Adresa', pib:'PIB', mb:'Matični broj', racun:'Tekući račun', email:'Email',
+        primNaziv:'Naziv klijenta', primAdresa:'Adresa', primPib:'PIB',
+        broj:'Broj fakture', mesto:'Mesto izdavanja', datumIzd:'Datum izdavanja', datumProm:'Datum prometa usluge', valuta:'Valuta'
+      }
+    },
+    frilenser: {
+      title: 'INVOICE',
+      izdLabel: 'FROM', primLabel: 'BILL TO',
+      opis: 'Description', kol: 'Qty', cena: 'Unit price', iznos: 'Amount',
+      total: 'TOTAL DUE',
+      signature: 'Signature',
+      clause: 'Issued by an individual providing freelance services under Serbian self-taxation regulations. Not a VAT-registered entity.',
+      fields: {
+        naziv:'Full name', adresa:'Address', pib:'Tax ID (optional)', mb:'', racun:'Payment account (IBAN / Wise / Payoneer)', email:'Email',
+        primNaziv:'Client name', primAdresa:'Client address', primPib:'VAT number (if applicable)',
+        broj:'Invoice number', mesto:'Place of issue', datumIzd:'Issue date', datumProm:'Service date', valuta:'Currency'
+      }
+    }
+  };
+
+  const toggleBtns = document.querySelectorAll('#mode-toggle .toggle-btn');
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.dataset.mode;
+      applyLabels();
+      renderPreview();
+    });
+  });
+
+  function applyLabels(){
+    const L = LABELS[mode];
+    document.getElementById('lbl-izd-naziv').textContent = L.fields.naziv;
+    document.getElementById('lbl-izd-adresa').textContent = L.fields.adresa;
+    document.getElementById('lbl-izd-pib').textContent = L.fields.pib;
+    document.getElementById('lbl-izd-mb').textContent = L.fields.mb || 'Matični broj (opciono)';
+    document.getElementById('lbl-izd-racun').textContent = L.fields.racun;
+    document.getElementById('lbl-izd-email').textContent = L.fields.email;
+    document.getElementById('lbl-prim-naziv').textContent = L.fields.primNaziv;
+    document.getElementById('lbl-prim-adresa').textContent = L.fields.primAdresa;
+    document.getElementById('lbl-prim-pib').textContent = L.fields.primPib;
+    document.getElementById('lbl-broj').textContent = L.fields.broj;
+    document.getElementById('lbl-mesto').textContent = L.fields.mesto;
+    document.getElementById('lbl-datum-izd').textContent = L.fields.datumIzd;
+    document.getElementById('lbl-datum-prom').textContent = L.fields.datumProm;
+    document.getElementById('lbl-valuta').textContent = L.fields.valuta;
+    document.getElementById('lbl-primalac-title').textContent = mode === 'pausalac' ? 'Primalac (klijent)' : 'Client';
+    document.getElementById('lbl-detalji-title').textContent = mode === 'pausalac' ? 'Detalji fakture' : 'Invoice details';
+    document.getElementById('lbl-stavke-title').textContent = mode === 'pausalac' ? 'Stavke' : 'Line items';
+  }
+
+  function addItem(opis, kolicina, cena){
+    itemCount++;
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    row.dataset.id = itemCount;
+    row.innerHTML = `
+      <input type="text" class="i-opis" placeholder="${mode === 'pausalac' ? 'Opis usluge' : 'Description'}" value="${opis || ''}">
+      <input type="number" class="i-kol" placeholder="1" value="${kolicina || 1}" min="0" step="0.01">
+      <input type="number" class="i-cena" placeholder="0" value="${cena || ''}" min="0" step="0.01">
+      <input type="text" class="i-iznos" placeholder="0" disabled>
+      <button type="button" class="del-item">✕</button>
+    `;
+    document.getElementById('items-container').appendChild(row);
+    row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', renderPreview));
+    row.querySelector('.del-item').addEventListener('click', () => {
+      row.remove();
+      renderPreview();
+    });
+  }
+
+  document.getElementById('add-item').addEventListener('click', () => addItem());
+
+  function fmtMoney(n, currency){
+    const rounded = Math.round(n * 100) / 100;
+    const formatted = rounded.toLocaleString('sr-RS', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `${formatted} ${currency}`;
+  }
+
+  function renderPreview(){
+    const L = LABELS[mode];
+    const val = id => document.getElementById(id).value.trim();
+
+    document.getElementById('p-title').textContent = L.title;
+    document.getElementById('p-broj-display').textContent = (mode === 'pausalac' ? 'Broj: ' : 'No: ') + (val('inv-broj') || '—');
+
+    const mesto = val('inv-mesto') || '—';
+    const datumIzd = val('inv-datum-izd');
+    const datumProm = val('inv-datum-prom');
+    document.getElementById('p-mesto-datum').textContent = `${mesto}, ${datumIzd || '—'}`;
+    document.getElementById('p-datum-prom-display').textContent = (mode === 'pausalac' ? 'Datum prometa: ' : 'Service date: ') + (datumProm || '—');
+
+    document.getElementById('p-izdavalac-label').textContent = L.izdLabel;
+    document.getElementById('p-primalac-label').textContent = L.primLabel;
+
+    const izdLines = [
+      val('izd-naziv'),
+      val('izd-adresa'),
+      val('izd-pib') ? 'PIB: ' + val('izd-pib') : '',
+      val('izd-mb') ? (mode === 'pausalac' ? 'MB: ' : 'Reg. no: ') + val('izd-mb') : '',
+      val('izd-racun') ? (mode === 'pausalac' ? 'Račun: ' : 'Account: ') + val('izd-racun') : '',
+      val('izd-email')
+    ].filter(Boolean);
+    document.getElementById('p-izdavalac').innerHTML = izdLines.length
+      ? `<div class="pname">${izdLines[0]}</div>${izdLines.slice(1).join('\n')}`
+      : '—';
+
+    const primLines = [
+      val('prim-naziv'),
+      val('prim-adresa'),
+      val('prim-pib') ? 'PIB: ' + val('prim-pib') : ''
+    ].filter(Boolean);
+    document.getElementById('p-primalac').innerHTML = primLines.length
+      ? `<div class="pname">${primLines[0]}</div>${primLines.slice(1).join('\n')}`
+      : '—';
+
+    document.getElementById('th-opis').textContent = L.opis;
+    document.getElementById('th-kol').textContent = L.kol;
+    document.getElementById('th-cena').textContent = L.cena;
+    document.getElementById('th-iznos').textContent = L.iznos;
+
+    const currency = document.getElementById('inv-valuta').value;
+    const tbody = document.getElementById('p-items-body');
+    tbody.innerHTML = '';
+    let total = 0;
+
+    document.querySelectorAll('.item-row').forEach(row => {
+      const opis = row.querySelector('.i-opis').value.trim();
+      const kol = parseFloat(row.querySelector('.i-kol').value) || 0;
+      const cena = parseFloat(row.querySelector('.i-cena').value) || 0;
+      const iznos = kol * cena;
+      row.querySelector('.i-iznos').value = iznos ? fmtMoney(iznos, currency) : '';
+      total += iznos;
+
+      if (opis || kol || cena){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${opis || '—'}</td>
+          <td class="num">${kol || '—'}</td>
+          <td class="num">${cena ? fmtMoney(cena, currency) : '—'}</td>
+          <td class="num">${iznos ? fmtMoney(iznos, currency) : '—'}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    });
+
+    document.getElementById('p-total-label').textContent = L.total;
+    document.getElementById('p-total').textContent = fmtMoney(total, currency);
+    document.getElementById('p-clause').textContent = L.clause;
+    document.getElementById('p-signature-label').textContent = L.signature;
+  }
+
+  document.querySelectorAll('.form-panel input, .form-panel select').forEach(el => {
+    el.addEventListener('input', renderPreview);
+  });
+
+  document.getElementById('print-btn').addEventListener('click', () => window.print());
+
+  // init
+  const todayStr = new Date().toISOString().split('T')[0];
+  document.getElementById('inv-datum-izd').value = todayStr;
+  document.getElementById('inv-datum-prom').value = todayStr;
+  addItem();
+  applyLabels();
+  renderPreview();
+</script>
+
+</body>
+</html>

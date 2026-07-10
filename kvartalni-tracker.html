@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kvartalni Tracker Prihoda — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD;
+    --paper-deep:#EDE4C8;
+    --ink:#1E2A38;
+    --ink-soft:#4A5A68;
+    --stamp:#A32638;
+    --ruled:#2F5D8C;
+    --line:#C9BE9C;
+    --good:#3C7A4E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+
+  header.top{
+    background:var(--ink);
+    color:var(--paper);
+    padding:0.9rem 1.25rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.06em;
+  }
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+
+  .wrap{max-width:760px; margin:0 auto; padding:2.2rem 1.25rem 0;}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    font-weight:600;
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.7rem;
+    font-weight:700;
+    margin:0 0 0.4rem;
+    letter-spacing:-0.01em;
+  }
+  .sub{color:var(--ink-soft); font-size:0.98rem; max-width:56ch; margin:0 0 1.8rem;}
+
+  .form-panel{
+    position:relative;
+    background:var(--paper-deep);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:1.6rem 1.4rem 1.4rem;
+    margin-bottom:1.6rem;
+  }
+  .form-panel::before{
+    content:"RUBRIKA 02 · ALAT 05";
+    position:absolute;
+    top:-0.65rem; left:1rem;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.08em;
+    font-weight:600;
+  }
+  .form-panel::after{
+    content:"OBRAZAC KTP-05";
+    position:absolute;
+    top:-0.65rem; right:1rem;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+  }
+
+  .entry-row{display:flex; gap:0.7rem; flex-wrap:wrap; align-items:flex-end;}
+  .field{flex:1; min-width:120px;}
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:0.35rem;
+  }
+  select, .field input[type=number]{
+    width:100%;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1rem;
+    font-weight:600;
+    color:var(--ink);
+    background:var(--paper);
+    border:none;
+    border-bottom:2px solid var(--ink);
+    padding:0.5rem 0.2rem;
+    outline:none;
+    appearance:none;
+    border-radius:0;
+  }
+  select:focus, .field input[type=number]:focus{border-bottom-color:var(--stamp);}
+
+  .save-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:700;
+    font-size:0.85rem;
+    letter-spacing:0.04em;
+    background:var(--stamp);
+    color:var(--paper);
+    border:none;
+    padding:0.65rem 1.1rem;
+    border-radius:2px;
+    cursor:pointer;
+    height:42px;
+  }
+  .save-btn:hover{background:#8a1f2f;}
+
+  /* summary cards */
+  .summary{display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.6rem;}
+  @media (max-width:560px){.summary{grid-template-columns:1fr;}}
+  .sum-card{
+    background:var(--paper-deep);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:1.1rem 1.1rem 1.2rem;
+  }
+  .sum-card .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .sum-card .amount{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.5rem;
+    font-weight:700;
+    margin:0.3rem 0 0.6rem;
+  }
+  .bar-track{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:3px;
+    height:10px;
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    background:var(--good);
+    transition:width 0.3s;
+  }
+  .bar-fill.warn{background:#C88A1E;}
+  .bar-fill.danger{background:var(--stamp);}
+  .bar-caption{
+    font-size:0.76rem;
+    color:var(--ink-soft);
+    margin-top:0.4rem;
+  }
+
+  /* entries list */
+  .entries-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:1.8rem 0 0.7rem;
+  }
+  .entry-item{
+    display:flex;
+    align-items:center;
+    gap:0.9rem;
+    background:var(--paper-deep);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:0.7rem 0.9rem;
+    margin-bottom:0.5rem;
+  }
+  .entry-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    font-weight:700;
+    min-width:64px;
+  }
+  .entry-amount{
+    flex:1;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.95rem;
+  }
+  .entry-del{
+    background:none;
+    border:1px solid var(--ink-soft);
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    padding:0.3rem 0.6rem;
+    border-radius:2px;
+    cursor:pointer;
+  }
+  .entry-del:hover{border-color:var(--stamp); color:var(--stamp);}
+  .empty-note{color:var(--ink-soft); font-size:0.88rem; font-style:italic;}
+
+  details{
+    background:var(--paper-deep);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:0.9rem 1.1rem;
+    margin:1.6rem 0 1rem;
+    font-size:0.86rem;
+    color:var(--ink-soft);
+  }
+  details summary{
+    cursor:pointer;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink);
+    letter-spacing:0.03em;
+  }
+  details p{margin:0.7rem 0 0.2rem;}
+  details code{background:var(--paper); padding:0.1rem 0.3rem; border-radius:2px;}
+
+  .reset-link{
+    display:inline-block;
+    margin-top:0.5rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    color:var(--ink-soft);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+
+  footer.disclaimer{
+    max-width:760px; margin:0 auto; padding:0 1.25rem;
+    font-size:0.78rem; color:var(--ink-soft);
+    border-top:1px solid var(--line); padding-top:1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <a href="index.html">← nazad na sve alate</a>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">Rubrika 02 — Praćenje prihoda · Alat 05</p>
+  <h1>Kvartalni Tracker Prihoda</h1>
+  <p class="sub">Unosi prihod po kvartalima i prati kumulativ u odnosu na zakonske limite. Podaci se čuvaju lokalno u tvom browseru — niko drugi ih ne vidi.</p>
+
+  <div class="form-panel">
+    <div class="entry-row">
+      <div class="field">
+        <label for="year">Godina</label>
+        <select id="year"></select>
+      </div>
+      <div class="field">
+        <label for="quarter">Kvartal</label>
+        <select id="quarter">
+          <option value="Q1">Q1 (jan–mar)</option>
+          <option value="Q2">Q2 (apr–jun)</option>
+          <option value="Q3">Q3 (jul–sep)</option>
+          <option value="Q4">Q4 (okt–dec)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="amount">Prihod (RSD)</label>
+        <input type="number" id="amount" placeholder="npr. 320000" min="0">
+      </div>
+      <button class="save-btn" id="save-btn">Sačuvaj</button>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="sum-card">
+      <div class="label">Ukupno u <span id="current-year-label"></span>.</div>
+      <div class="amount" id="year-total">0 RSD</div>
+      <div class="bar-track"><div class="bar-fill" id="pausal-bar" style="width:0%"></div></div>
+      <div class="bar-caption" id="pausal-caption">0% od paušalnog limita (6.000.000 RSD/god)</div>
+    </div>
+    <div class="sum-card">
+      <div class="label">Poslednja 4 kvartala (PDV provera)</div>
+      <div class="amount" id="rolling-total">0 RSD</div>
+      <div class="bar-track"><div class="bar-fill" id="pdv-bar" style="width:0%"></div></div>
+      <div class="bar-caption" id="pdv-caption">0% od PDV praga (8.000.000 RSD/12mes)</div>
+    </div>
+  </div>
+
+  <div class="entries-label">Svi unosi</div>
+  <div id="entries-list"></div>
+  <span class="reset-link" id="reset-link">Obriši sve podatke</span>
+
+  <details>
+    <summary>Zašto ovi limiti?</summary>
+    <p><b>6.000.000 RSD godišnje</b> — zakonski limit prometa za preduzetnika paušalca. Prelaskom ove granice u kalendarskoj godini gubi se pravo na paušalno oporezivanje i prelazi se na vođenje poslovnih knjiga.</p>
+    <p><b>8.000.000 RSD u bilo kojih 12 meseci</b> — poseban prag za obavezan ulazak u sistem PDV-a, nezavisno od toga da li si frilenser ili paušalac. Računa se kao klizni prozor od 12 meseci unazad, ne po kalendarskoj godini — zato ovaj alat prati poslednja 4 kvartala, a ne samo tekuću godinu.</p>
+    <p>Traka menja boju kada se približiš pragu: zelena do 70%, žuta 70–90%, crvena preko 90%.</p>
+  </details>
+</div>
+
+<footer class="disclaimer">
+  Ovaj alat je informativnog karaktera i ne predstavlja poresku evidenciju. Podaci se čuvaju samo lokalno u tvom browseru (localStorage) — ne šalju se nikuda i biće izgubljeni ako obrišeš podatke browsera. Za zvaničnu evidenciju vodi KPO knjigu ili se konsultuj sa knjigovođom.
+</footer>
+
+<script>
+  const STORAGE_KEY = 'slobodnjak_kvartalni_prihodi';
+  const PAUSAL_LIMIT = 6000000;
+  const PDV_LIMIT = 8000000;
+
+  const fmt = n => Math.round(n).toLocaleString('sr-RS') + ' RSD';
+
+  function loadData(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch(e){ return {}; }
+  }
+
+  function saveData(data){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  let data = loadData(); // { "2026-Q1": 320000, ... }
+
+  const yearSelect = document.getElementById('year');
+  const nowYear = new Date().getFullYear();
+  for (let y = nowYear - 2; y <= nowYear + 1; y++){
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    if (y === nowYear) opt.selected = true;
+    yearSelect.appendChild(opt);
+  }
+
+  document.getElementById('current-year-label').textContent = nowYear;
+
+  const quarterOrder = ['Q1','Q2','Q3','Q4'];
+
+  function quarterIndex(key){
+    // key like "2026-Q1" -> sortable index
+    const [y, q] = key.split('-');
+    return parseInt(y) * 4 + quarterOrder.indexOf(q);
+  }
+
+  function render(){
+    // year total (current calendar year, based on selector's displayed year = nowYear always for summary)
+    let yearTotal = 0;
+    quarterOrder.forEach(q => {
+      const key = `${nowYear}-${q}`;
+      if (data[key]) yearTotal += data[key];
+    });
+    document.getElementById('year-total').textContent = fmt(yearTotal);
+    setBar('pausal-bar', 'pausal-caption', yearTotal, PAUSAL_LIMIT, 'od paušalnog limita (6.000.000 RSD/god)');
+
+    // rolling last 4 quarters (regardless of year boundary)
+    const allKeys = Object.keys(data).sort((a,b) => quarterIndex(a) - quarterIndex(b));
+    const last4 = allKeys.slice(-4);
+    const rollingTotal = last4.reduce((sum, k) => sum + data[k], 0);
+    document.getElementById('rolling-total').textContent = fmt(rollingTotal);
+    setBar('pdv-bar', 'pdv-caption', rollingTotal, PDV_LIMIT, 'od PDV praga (8.000.000 RSD/12mes)');
+
+    // entries list, most recent first
+    const list = document.getElementById('entries-list');
+    list.innerHTML = '';
+    const sortedKeys = Object.keys(data).sort((a,b) => quarterIndex(b) - quarterIndex(a));
+
+    if (sortedKeys.length === 0){
+      list.innerHTML = '<p class="empty-note">Još uvek nema unosa. Dodaj prvi kvartal iznad.</p>';
+      return;
+    }
+
+    sortedKeys.forEach(key => {
+      const [y, q] = key.split('-');
+      const row = document.createElement('div');
+      row.className = 'entry-item';
+      row.innerHTML = `
+        <div class="entry-tag">${q} ${y}</div>
+        <div class="entry-amount">${fmt(data[key])}</div>
+        <button class="entry-del" data-key="${key}">Obriši</button>
+      `;
+      list.appendChild(row);
+    });
+
+    list.querySelectorAll('.entry-del').forEach(btn => {
+      btn.addEventListener('click', () => {
+        delete data[btn.dataset.key];
+        saveData(data);
+        render();
+      });
+    });
+  }
+
+  function setBar(barId, capId, value, limit, suffix){
+    const pct = Math.min(100, (value / limit) * 100);
+    const bar = document.getElementById(barId);
+    bar.style.width = pct + '%';
+    bar.classList.remove('warn', 'danger');
+    if (pct >= 90) bar.classList.add('danger');
+    else if (pct >= 70) bar.classList.add('warn');
+    document.getElementById(capId).textContent = `${pct.toFixed(0)}% ${suffix}`;
+  }
+
+  document.getElementById('save-btn').addEventListener('click', () => {
+    const year = yearSelect.value;
+    const quarter = document.getElementById('quarter').value;
+    const amount = parseFloat(document.getElementById('amount').value);
+    if (!amount || amount < 0) return;
+    data[`${year}-${quarter}`] = amount;
+    saveData(data);
+    document.getElementById('amount').value = '';
+    render();
+  });
+
+  document.getElementById('reset-link').addEventListener('click', () => {
+    if (confirm('Sigurno želiš da obrišeš sve unete podatke? Ovo se ne može poništiti.')){
+      data = {};
+      saveData(data);
+      render();
+    }
+  });
+
+  render();
+</script>
+
+</body>
+</html>

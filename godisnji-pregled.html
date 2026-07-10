@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Godišnji Pregled Zarade — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD;
+    --paper-deep:#EDE4C8;
+    --ink:#1E2A38;
+    --ink-soft:#4A5A68;
+    --stamp:#A32638;
+    --ruled:#2F5D8C;
+    --line:#C9BE9C;
+    --good:#3C7A4E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+
+  header.top{
+    background:var(--ink);
+    color:var(--paper);
+    padding:0.9rem 1.25rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.06em;
+  }
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+
+  .wrap{max-width:760px; margin:0 auto; padding:2.2rem 1.25rem 0;}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    font-weight:600;
+    margin:0 0 0.6rem;
+  }
+  h1{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.7rem;
+    font-weight:700;
+    margin:0 0 0.4rem;
+    letter-spacing:-0.01em;
+  }
+  .sub{color:var(--ink-soft); font-size:0.98rem; max-width:56ch; margin:0 0 1.8rem;}
+
+  .controls{
+    display:flex;
+    gap:0.8rem;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    margin-bottom:1.6rem;
+  }
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:0.35rem;
+  }
+  select{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1rem;
+    font-weight:600;
+    color:var(--ink);
+    background:var(--paper-deep);
+    border:1px solid var(--ink);
+    padding:0.5rem 0.7rem;
+    border-radius:2px;
+    outline:none;
+  }
+  .export-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:700;
+    font-size:0.8rem;
+    letter-spacing:0.03em;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:0.6rem 1rem;
+    border-radius:2px;
+    cursor:pointer;
+    margin-left:auto;
+  }
+  .export-btn:hover{background:#2f4054;}
+
+  /* chart panel */
+  .chart-panel{
+    position:relative;
+    background:var(--paper-deep);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:1.6rem 1.4rem 1.2rem;
+    margin-bottom:1.6rem;
+  }
+  .chart-panel::before{
+    content:"RUBRIKA 02 · ALAT 06";
+    position:absolute;
+    top:-0.65rem; left:1rem;
+    background:var(--paper);
+    border:1px solid var(--ink);
+    padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.62rem;
+    letter-spacing:0.08em;
+    font-weight:600;
+  }
+  canvas{width:100%; height:220px; display:block;}
+
+  /* summary row */
+  .summary{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.8rem; margin-bottom:1.6rem;}
+  @media (max-width:560px){.summary{grid-template-columns:1fr;}}
+  .sum-box{
+    background:var(--paper-deep);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:0.9rem 1rem;
+    text-align:center;
+  }
+  .sum-box .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .sum-box .val{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.2rem;
+    font-weight:700;
+    margin-top:0.3rem;
+  }
+  .sum-box .val.up{color:var(--good);}
+  .sum-box .val.down{color:var(--stamp);}
+
+  /* table */
+  table{width:100%; border-collapse:collapse; margin-bottom:1.6rem; font-size:0.88rem;}
+  th, td{
+    text-align:left;
+    padding:0.55rem 0.6rem;
+    border-bottom:1px solid var(--line);
+  }
+  th{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  td.num{font-family:'IBM Plex Mono', monospace; text-align:right;}
+  .empty-note{color:var(--ink-soft); font-size:0.88rem; font-style:italic;}
+
+  footer.disclaimer{
+    max-width:760px; margin:0 auto; padding:0 1.25rem;
+    font-size:0.78rem; color:var(--ink-soft);
+    border-top:1px solid var(--line); padding-top:1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <a href="index.html">← nazad na sve alate</a>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">Rubrika 02 — Praćenje prihoda · Alat 06</p>
+  <h1>Godišnji Pregled Zarade</h1>
+  <p class="sub">Grafički pregled prihoda po kvartalima, poređenje sa prethodnom godinom i izvoz svih podataka u CSV. Koristi iste podatke koje si uneo u Kvartalni Tracker Prihoda.</p>
+
+  <div class="controls">
+    <div class="field">
+      <label for="year">Godina</label>
+      <select id="year"></select>
+    </div>
+    <button class="export-btn" id="export-btn">Izvezi CSV</button>
+  </div>
+
+  <div class="chart-panel">
+    <canvas id="chart"></canvas>
+  </div>
+
+  <div class="summary">
+    <div class="sum-box">
+      <div class="label">Ukupno godina</div>
+      <div class="val" id="sum-total">—</div>
+    </div>
+    <div class="sum-box">
+      <div class="label">Prosek po kvartalu</div>
+      <div class="val" id="sum-avg">—</div>
+    </div>
+    <div class="sum-box">
+      <div class="label">vs prethodna godina</div>
+      <div class="val" id="sum-change">—</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Kvartal</th><th class="num">Iznos</th><th class="num">Promena vs prošli kv.</th></tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+  <div id="empty-note" class="empty-note" style="display:none;">Nema unetih podataka za ovu godinu. Dodaj ih u <a href="kvartalni-tracker.html">Kvartalnom Tracker-u Prihoda</a>.</div>
+</div>
+
+<footer class="disclaimer">
+  Podaci se čuvaju samo lokalno u tvom browseru (localStorage) — isti izvor kao Kvartalni Tracker Prihoda. Ovaj alat ništa ne šalje nikuda i ne predstavlja zvaničnu poresku evidenciju.
+</footer>
+
+<script>
+  const STORAGE_KEY = 'slobodnjak_kvartalni_prihodi';
+  const quarterOrder = ['Q1','Q2','Q3','Q4'];
+  const fmt = n => Math.round(n).toLocaleString('sr-RS') + ' RSD';
+
+  function loadData(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch(e){ return {}; }
+  }
+
+  const data = loadData(); // { "2026-Q1": 320000, ... }
+
+  // populate year selector from data + current year
+  const years = new Set([new Date().getFullYear()]);
+  Object.keys(data).forEach(k => years.add(parseInt(k.split('-')[0])));
+  const sortedYears = [...years].sort((a,b) => b - a);
+
+  const yearSelect = document.getElementById('year');
+  sortedYears.forEach(y => {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    yearSelect.appendChild(opt);
+  });
+
+  yearSelect.addEventListener('change', render);
+
+  function getYearValues(year){
+    return quarterOrder.map(q => data[`${year}-${q}`] || null);
+  }
+
+  function drawChart(values, prevValues){
+    const canvas = document.getElementById('chart');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = 220 * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, rect.width, 220);
+
+    const maxVal = Math.max(1, ...values.filter(v => v !== null), ...prevValues.filter(v => v !== null));
+    const padding = { top: 10, bottom: 30, left: 10, right: 10 };
+    const chartH = 220 - padding.top - padding.bottom;
+    const groupW = (rect.width - padding.left - padding.right) / 4;
+    const barW = groupW * 0.32;
+
+    quarterOrder.forEach((q, i) => {
+      const groupX = padding.left + i * groupW;
+
+      // previous year bar (ghost)
+      if (prevValues[i] !== null){
+        const h = (prevValues[i] / maxVal) * chartH;
+        ctx.fillStyle = '#C9BE9C';
+        ctx.fillRect(groupX + groupW/2 - barW - 4, padding.top + chartH - h, barW, h);
+      }
+
+      // current year bar
+      if (values[i] !== null){
+        const h = (values[i] / maxVal) * chartH;
+        ctx.fillStyle = '#A32638';
+        ctx.fillRect(groupX + groupW/2 + 4, padding.top + chartH - h, barW, h);
+      }
+
+      // label
+      ctx.fillStyle = '#1E2A38';
+      ctx.font = '600 12px IBM Plex Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(q, groupX + groupW/2, 220 - 8);
+    });
+  }
+
+  function render(){
+    const year = parseInt(yearSelect.value);
+    const values = getYearValues(year);
+    const prevValues = getYearValues(year - 1);
+
+    drawChart(values, prevValues);
+
+    const validValues = values.filter(v => v !== null);
+    const total = validValues.reduce((a,b) => a+b, 0);
+    const avg = validValues.length ? total / validValues.length : 0;
+    const prevTotal = prevValues.filter(v => v !== null).reduce((a,b) => a+b, 0);
+
+    document.getElementById('sum-total').textContent = validValues.length ? fmt(total) : '—';
+    document.getElementById('sum-avg').textContent = validValues.length ? fmt(avg) : '—';
+
+    const changeEl = document.getElementById('sum-change');
+    if (prevTotal > 0 && total > 0){
+      const pct = ((total - prevTotal) / prevTotal) * 100;
+      changeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+      changeEl.className = 'val ' + (pct >= 0 ? 'up' : 'down');
+    } else {
+      changeEl.textContent = '—';
+      changeEl.className = 'val';
+    }
+
+    // table
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+    const emptyNote = document.getElementById('empty-note');
+
+    if (validValues.length === 0){
+      emptyNote.style.display = 'block';
+      return;
+    }
+    emptyNote.style.display = 'none';
+
+    let prevQVal = null;
+    quarterOrder.forEach((q, i) => {
+      const val = values[i];
+      const tr = document.createElement('tr');
+      let changeStr = '—';
+      if (val !== null && prevQVal !== null && prevQVal > 0){
+        const pct = ((val - prevQVal) / prevQVal) * 100;
+        changeStr = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+      }
+      tr.innerHTML = `
+        <td>${q} ${year}</td>
+        <td class="num">${val !== null ? fmt(val) : '—'}</td>
+        <td class="num">${changeStr}</td>
+      `;
+      tbody.appendChild(tr);
+      if (val !== null) prevQVal = val;
+    });
+  }
+
+  document.getElementById('export-btn').addEventListener('click', () => {
+    const rows = [['Godina', 'Kvartal', 'Iznos (RSD)']];
+    Object.keys(data)
+      .sort()
+      .forEach(key => {
+        const [y, q] = key.split('-');
+        rows.push([y, q, data[key]]);
+      });
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'slobodnjak-prihodi.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  window.addEventListener('resize', render);
+  render();
+</script>
+
+</body>
+</html>

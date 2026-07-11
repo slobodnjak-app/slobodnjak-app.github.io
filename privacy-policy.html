@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Politika privatnosti — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD; --paper-deep:#EDE4C8; --ink:#1E2A38; --ink-soft:#4A5A68;
+    --stamp:#A32638; --ruled:#2F5D8C; --line:#C9BE9C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink); font-family:'IBM Plex Sans', sans-serif; line-height:1.6; padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+  header.top{
+    background:var(--ink); color:var(--paper); padding:0.9rem 1.25rem;
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace; font-size:0.8rem; letter-spacing:0.06em;
+  }
+  header.top .nav-links{display:flex; gap:1.2rem;}
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+
+  .wrap{max-width:700px; margin:0 auto; padding:2.4rem 1.25rem 0;}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--stamp); font-weight:600; margin:0 0 0.6rem;
+  }
+  h1{font-family:'IBM Plex Mono', monospace; font-size:1.9rem; font-weight:700; margin:0 0 0.4rem; letter-spacing:-0.01em;}
+  .updated{font-family:'IBM Plex Mono', monospace; font-size:0.8rem; color:var(--ink-soft); margin:0 0 1.8rem;}
+  h2{
+    font-family:'IBM Plex Mono', monospace; font-size:1.05rem; font-weight:700;
+    margin:2rem 0 0.7rem; padding-bottom:0.4rem; border-bottom:2px solid var(--ink);
+  }
+  p{color:var(--ink); font-size:0.94rem;}
+  ul{padding-left:1.3rem;}
+  li{margin-bottom:0.4rem; font-size:0.94rem;}
+  code{background:var(--paper-deep); padding:0.1rem 0.35rem; border-radius:2px; font-size:0.85rem;}
+
+  .summary-card{
+    background:var(--paper-deep); border:1px solid var(--ink); border-radius:2px;
+    padding:1.2rem 1.4rem; margin-bottom:1rem;
+  }
+  .summary-card ul{margin:0; padding-left:1.2rem;}
+
+  footer.site-footer{
+    max-width:700px; margin:3rem auto 0; padding:1.5rem 1.25rem 0;
+    border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem;
+    font-size:0.8rem; color:var(--ink-soft);
+  }
+  footer.site-footer .foot-links{display:flex; gap:1rem;}
+  footer.site-footer a{color:var(--ink-soft); text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <div class="nav-links">
+    <a href="index.html">Alati</a>
+    <a href="about-us.html">O nama</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">Pravno</p>
+  <h1>Politika privatnosti</h1>
+  <p class="updated">Poslednje ažurirano: jul 2026.</p>
+
+  <div class="summary-card">
+    <p style="margin-top:0;"><b>Ukratko:</b></p>
+    <ul>
+      <li>Ne pravimo naloge, ne tražimo email, ne pratimo te preko sajtova trećih strana.</li>
+      <li>Podaci koje uneseš u alate (npr. iznosi prihoda) ostaju samo u tvom browseru.</li>
+      <li>Ne prodajemo niti delimo podatke — jer ih ni nemamo na serveru.</li>
+    </ul>
+  </div>
+
+  <h2>Šta je Slobodnjak</h2>
+  <p>Slobodnjak (slobodnjak-app.github.io) je skup besplatnih statičnih web alata namenjenih frilenserima i preduzetnicima paušalcima u Srbiji. Sajt je hostovan na GitHub Pages i ne koristi bekend server niti bazu podataka.</p>
+
+  <h2>Koje podatke prikupljamo</h2>
+  <p>Ne prikupljamo lične podatke na serveru. Nemamo formu za registraciju, newsletter, niti bilo kakav sistem naloga.</p>
+  <p>Neki alati (npr. Kvartalni Tracker Prihoda, Godišnji Pregled Zarade, PDV Prag Kalkulator) čuvaju podatke koje uneseš lokalno u tvom browseru, koristeći <code>localStorage</code>. Ti podaci:</p>
+  <ul>
+    <li>Ostaju isključivo na tvom uređaju</li>
+    <li>Nikada se ne šalju nama, niti bilo kom serveru</li>
+    <li>Brišu se ako obrišeš podatke browsera za ovaj sajt, ili ručno putem dugmeta "Obriši sve podatke" u alatu</li>
+    <li>Nisu dostupni ni na jednom drugom uređaju — ako otvoriš Slobodnjak na telefonu i računaru, podaci se ne sinhronizuju</li>
+  </ul>
+
+  <h2>Kolačići i analitika</h2>
+  <p>Sajt ne koristi kolačiće za praćenje niti alate za analitiku ponašanja korisnika (npr. Google Analytics). Mogu se koristiti standardni GitHub Pages serverski logovi (IP adresa, vreme pristupa) koje održava GitHub u okviru svoje infrastrukture — to je van naše kontrole i tiče se GitHub-ove politike privatnosti, ne naše.</p>
+
+  <h2>Eksterni fontovi</h2>
+  <p>Sajt učitava fontove (IBM Plex Mono, IBM Plex Sans) sa Google Fonts servera radi vizuelnog dizajna. Google može evidentirati standardne tehničke podatke (IP adresu, tip browsera) prilikom učitavanja fonta, u skladu sa svojom politikom privatnosti.</p>
+
+  <h2>Linkovi ka trećim stranama</h2>
+  <p>Pojedini alati sadrže linkove ka zvaničnim državnim portalima (Poreska uprava, frilenseri.purs.gov.rs) i ka PayPal-u za dobrovoljne donacije. Kada napustiš Slobodnjak i odeš na te sajtove, primenjuje se njihova, a ne naša politika privatnosti.</p>
+
+  <h2>Sadržaj koji generišeš</h2>
+  <p>Fakture i ugovori koje napraviš pomoću Generatora Faktura i Generatora Ugovora generišu se u potpunosti u tvom browseru (klijentska strana) i nikada se ne šalju na server — štampanje ili čuvanje kao PDF odvija se lokalno preko funkcije browsera.</p>
+
+  <h2>Promene ove politike</h2>
+  <p>Ako se nešto promeni u načinu rada sajta (npr. dodavanje analitike u budućnosti), ova stranica će biti ažurirana, sa novim datumom na vrhu.</p>
+
+  <h2>Kontakt</h2>
+  <p>Pitanja u vezi sa privatnošću: <a href="mailto:slobodnjak.app@gmail.com">slobodnjak.app@gmail.com</a></p>
+</div>
+
+<footer class="site-footer">
+  <span>© 2026 Slobodnjak</span>
+  <div class="foot-links">
+    <a href="index.html">Alati</a>
+    <a href="about-us.html">O nama</a>
+  </div>
+</footer>
+
+</body>
+</html>

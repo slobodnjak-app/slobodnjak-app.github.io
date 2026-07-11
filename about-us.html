@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O nama — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD; --paper-deep:#EDE4C8; --ink:#1E2A38; --ink-soft:#4A5A68;
+    --stamp:#A32638; --ruled:#2F5D8C; --line:#C9BE9C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink); font-family:'IBM Plex Sans', sans-serif; line-height:1.6; padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+  header.top{
+    background:var(--ink); color:var(--paper); padding:0.9rem 1.25rem;
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace; font-size:0.8rem; letter-spacing:0.06em;
+  }
+  header.top .nav-links{display:flex; gap:1.2rem;}
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+
+  .wrap{max-width:700px; margin:0 auto; padding:2.4rem 1.25rem 0;}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--stamp); font-weight:600; margin:0 0 0.6rem;
+  }
+  h1{font-family:'IBM Plex Mono', monospace; font-size:1.9rem; font-weight:700; margin:0 0 1.5rem; letter-spacing:-0.01em;}
+  h2{
+    font-family:'IBM Plex Mono', monospace; font-size:1.1rem; font-weight:700;
+    margin:2.2rem 0 0.8rem; padding-bottom:0.5rem; border-bottom:2px solid var(--ink);
+  }
+  p{color:var(--ink); font-size:0.96rem;}
+  ul{padding-left:1.3rem;}
+  li{margin-bottom:0.4rem; font-size:0.96rem;}
+
+  .intro-card{
+    background:var(--paper-deep); border:1px solid var(--ink); border-radius:2px;
+    padding:1.4rem 1.5rem; margin-bottom:0.5rem; font-size:1.02rem;
+  }
+
+  .contact-box{
+    background:var(--paper-deep); border:1px solid var(--line); border-radius:2px;
+    padding:1rem 1.2rem; font-size:0.92rem;
+  }
+
+  /* donate section */
+  .donate-section{
+    position:relative;
+    background:var(--ink); color:var(--paper);
+    border-radius:2px;
+    padding:2.2rem 1.6rem;
+    margin-top:2.6rem;
+    text-align:center;
+  }
+  .donate-section .corner{
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.12em;
+    color:#B9AE8C; margin-bottom:0.7rem;
+  }
+  .donate-section h2{
+    border:none; color:var(--paper); margin:0 0 0.7rem; font-size:1.3rem;
+  }
+  .donate-section p{
+    color:#D9D2BC; max-width:48ch; margin:0 auto 1.6rem; font-size:0.92rem;
+  }
+  .qr-box{
+    display:inline-block;
+    background:var(--paper);
+    padding:0.9rem;
+    border-radius:4px;
+    margin-bottom:1.2rem;
+  }
+  .qr-box img{
+    width:170px; height:170px; display:block; border-radius:2px;
+  }
+  .donate-btn{
+    display:inline-block;
+    background:var(--stamp);
+    color:var(--paper);
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:700;
+    font-size:0.9rem;
+    letter-spacing:0.04em;
+    padding:0.8rem 1.6rem;
+    border-radius:2px;
+    text-decoration:none;
+  }
+  .donate-btn:hover{background:#8a1f2f;}
+  .donate-link-text{
+    display:block; margin-top:0.8rem; font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem; color:#B9AE8C;
+  }
+  .donate-link-text a{color:#B9AE8C;}
+
+  footer.site-footer{
+    max-width:700px; margin:3rem auto 0; padding:1.5rem 1.25rem 0;
+    border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem;
+    font-size:0.8rem; color:var(--ink-soft);
+  }
+  footer.site-footer .foot-links{display:flex; gap:1rem;}
+  footer.site-footer a{color:var(--ink-soft); text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <div class="nav-links">
+    <a href="index.html">Alati</a>
+    <a href="privacy-policy.html">Privatnost</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">O projektu</p>
+  <h1>Zašto postoji Slobodnjak</h1>
+
+  <div class="intro-card">
+    <p style="margin:0;">Srbija ima dva potpuno različita sistema za frilensere i preduzetnike paušalce — i gomilu informacija razbacanih po zvaničnim portalima, forumima i grupama. Slobodnjak postoji da to spakuje u alate koje možeš da koristiš za dva minuta, bez čitanja zakona.</p>
+  </div>
+
+  <h2>Šta nudimo</h2>
+  <p>Deset besplatnih alata podeljenih u četiri celine:</p>
+  <ul>
+    <li><b>Porez i status</b> — kalkulatori za izbor modela oporezivanja i praćenje rokova</li>
+    <li><b>Praćenje prihoda</b> — kvartalni i godišnji pregled zarade</li>
+    <li><b>Dokumenti</b> — generatori faktura i ugovora, spremni za štampu</li>
+    <li><b>Kalkulatori za odluke</b> — brze provere neto/bruto iznosa i PDV praga</li>
+  </ul>
+
+  <h2>Kako radimo</h2>
+  <p>Svi alati su statične stranice — nema servera, nema naloga, nema praćenja. Podaci koje uneseš (npr. u Kvartalnom Tracker-u) čuvaju se isključivo u tvom browseru i nikad se ne šalju nama niti bilo kome drugom. Detalji su u <a href="privacy-policy.html">politici privatnosti</a>.</p>
+  <p>Slobodnjak nije zamena za knjigovođu ili advokata — to jasno pišemo na svakom alatu. Cilj je da ti pomogne da brže razumeš svoju situaciju i dođeš spremniji na razgovor sa stručnjakom, ili da odradiš rutinske obračune bez čekanja.</p>
+
+  <h2>Kontakt</h2>
+  <div class="contact-box">
+    Pitanja, predlozi za nove alate, ili si našao grešku u obračunu?<br>
+    Piši na <a href="mailto:slobodnjak.app@gmail.com">slobodnjak.app@gmail.com</a>
+  </div>
+
+  <div class="donate-section">
+    <div class="corner">PODRŽI PROJEKAT</div>
+    <h2>Slobodnjak je i ostaje besplatan</h2>
+    <p>Nema pretplate, nema reklama, nema prodaje podataka. Ako ti je neki alat uštedeo vreme ili nerve, dobrovoljna donacija pomaže da projekat ostane živ i da se dodaju novi alati.</p>
+    <div class="qr-box">
+      <img src="assets/qr-paypal.png" alt="QR kod za PayPal donaciju">
+    </div>
+    <div>
+      <a class="donate-btn" href="https://paypal.me/AnelIzberovic" target="_blank" rel="noopener">Doniraj preko PayPal-a</a>
+      <span class="donate-link-text">ili skeniraj QR kod · <a href="https://paypal.me/AnelIzberovic" target="_blank" rel="noopener">paypal.me/AnelIzberovic</a></span>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span>© 2026 Slobodnjak</span>
+  <div class="foot-links">
+    <a href="index.html">Alati</a>
+    <a href="privacy-policy.html">Politika privatnosti</a>
+  </div>
+</footer>
+
+</body>
+</html>

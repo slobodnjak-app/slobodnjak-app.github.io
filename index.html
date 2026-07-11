@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slobodnjak — Besplatni alati za srpske frilensere i paušalce</title>
+<meta name="description" content="Besplatni web alati za frilensere i preduzetnike paušalce u Srbiji: poreski kalkulatori, rok podsetnici, generatori faktura i ugovora.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD; --paper-deep:#EDE4C8; --ink:#1E2A38; --ink-soft:#4A5A68;
+    --stamp:#A32638; --ruled:#2F5D8C; --line:#C9BE9C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink); font-family:'IBM Plex Sans', sans-serif; line-height:1.55; padding:0 0 3rem;
+  }
+  a{color:var(--ruled);}
+
+  header.top{
+    background:var(--ink); color:var(--paper); padding:0.9rem 1.25rem;
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace; font-size:0.8rem; letter-spacing:0.06em;
+  }
+  header.top .nav-links{display:flex; gap:1.2rem;}
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+
+  .wrap{max-width:900px; margin:0 auto; padding:0 1.25rem;}
+
+  /* hero */
+  .hero{
+    text-align:center;
+    padding:3.2rem 1.25rem 2.6rem;
+    position:relative;
+  }
+  .seal{
+    width:150px; height:150px;
+    border:4px solid var(--stamp);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 1.6rem;
+    transform:rotate(-9deg);
+    color:var(--stamp);
+    font-family:'IBM Plex Mono', monospace;
+    text-align:center;
+    line-height:1.25;
+    position:relative;
+  }
+  .seal::before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    border:1px solid var(--stamp);
+    border-radius:50%;
+  }
+  .seal .seal-main{font-size:1.35rem; font-weight:700; letter-spacing:0.02em;}
+  .seal .seal-sub{font-size:0.55rem; letter-spacing:0.12em; margin-top:0.2rem; text-transform:uppercase;}
+
+  .hero h1{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:2rem;
+    font-weight:700;
+    margin:0 0 0.7rem;
+    letter-spacing:-0.01em;
+  }
+  .hero p{
+    color:var(--ink-soft);
+    font-size:1.02rem;
+    max-width:52ch;
+    margin:0 auto 1.6rem;
+  }
+  .hero-badges{
+    display:flex; gap:0.6rem; justify-content:center; flex-wrap:wrap;
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.04em;
+  }
+  .hero-badge{
+    border:1px solid var(--ink-soft); color:var(--ink-soft);
+    padding:0.3rem 0.7rem; border-radius:2px;
+  }
+
+  /* rubrika sections */
+  .rubrika{margin:2.6rem 0;}
+  .rubrika-head{
+    display:flex; align-items:baseline; gap:0.8rem;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:0.6rem;
+    margin-bottom:1.1rem;
+  }
+  .rubrika-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    color:var(--stamp);
+    font-weight:700;
+    letter-spacing:0.06em;
+    border:1px solid var(--stamp);
+    padding:0.2rem 0.5rem;
+    border-radius:2px;
+  }
+  .rubrika-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.15rem;
+    font-weight:700;
+  }
+  .rubrika-desc{
+    color:var(--ink-soft);
+    font-size:0.85rem;
+    margin-left:auto;
+    text-align:right;
+    display:none;
+  }
+  @media (min-width:640px){.rubrika-desc{display:block;}}
+
+  .tools-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0.9rem;
+  }
+  @media (max-width:600px){.tools-grid{grid-template-columns:1fr;}}
+
+  .tool-card{
+    position:relative;
+    display:block;
+    background:var(--paper-deep);
+    border:1px solid var(--ink);
+    border-radius:2px;
+    padding:1.1rem 1.1rem 1rem;
+    text-decoration:none;
+    color:var(--ink);
+    transition:transform 0.12s, box-shadow 0.12s;
+  }
+  .tool-card:hover{
+    transform:translateY(-2px);
+    box-shadow:3px 4px 0 var(--ink);
+  }
+  .tool-card .alat-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+    margin-bottom:0.45rem;
+  }
+  .tool-card h3{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1rem;
+    margin:0 0 0.4rem;
+    line-height:1.3;
+  }
+  .tool-card p{
+    font-size:0.83rem;
+    color:var(--ink-soft);
+    margin:0;
+  }
+  .tool-card .arrow{
+    position:absolute;
+    top:1rem; right:1.1rem;
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--stamp);
+    font-size:0.9rem;
+  }
+
+  footer.site-footer{
+    max-width:900px; margin:3rem auto 0; padding:1.5rem 1.25rem 0;
+    border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem;
+    font-size:0.8rem; color:var(--ink-soft);
+  }
+  footer.site-footer .foot-links{display:flex; gap:1rem;}
+  footer.site-footer a{color:var(--ink-soft); text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <div class="nav-links">
+    <a href="about-us.html">O nama</a>
+    <a href="privacy-policy.html">Privatnost</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="seal">
+    <div>
+      <div class="seal-main">SLOBODNJAK</div>
+      <div class="seal-sub">Est. 2026</div>
+    </div>
+  </div>
+  <h1>Alati za srpske frilensere i paušalce</h1>
+  <p>Besplatni, jednostavni alati za snalaženje sa porezima, rokovima i dokumentima — napravljeni da popune rupu koju zvanični portali ostavljaju.</p>
+  <div class="hero-badges">
+    <span class="hero-badge">10 alata</span>
+    <span class="hero-badge">Besplatno</span>
+    <span class="hero-badge">Bez registracije</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="rubrika">
+    <div class="rubrika-head">
+      <span class="rubrika-num">RUBRIKA 01</span>
+      <span class="rubrika-title">Porez i Status</span>
+      <span class="rubrika-desc">Osnovne odluke i obračuni</span>
+    </div>
+    <div class="tools-grid">
+      <a class="tool-card" href="model-a-b-kalkulator.html">
+        <div class="alat-tag">ALAT 01</div>
+        <h3>Model A vs Model B</h3>
+        <p>Poredi oba modela frilenserskog samooporezivanja i vidi koji je isplativiji za tvoj prihod.</p>
+        <span class="arrow">→</span>
+      </a>
+      <a class="tool-card" href="frilenser-ili-pausalac.html">
+        <div class="alat-tag">ALAT 02</div>
+        <h3>Frilenser ili Paušalac?</h3>
+        <p>Kratak kviz koji ti daje preporuku poslovnog statusa sa obrazloženjem.</p>
+        <span class="arrow">→</span>
+      </a>
+      <a class="tool-card" href="doprinosi-kalkulator.html">
+        <div class="alat-tag">ALAT 03</div>
+        <h3>Doprinosi Kalkulator</h3>
+        <p>Izračunaj porez, PIO i zdravstveni doprinos na osnovu mesečne osnovice.</p>
+        <span class="arrow">→</span>
+      </a>
+      <a class="tool-card" href="rok-podsetnik.html">
+        <div class="alat-tag">ALAT 04</div>
+        <h3>Rok Podsetnik</h3>
+        <p>Svi kvartalni i mesečni poreski rokovi na jednom mestu, sa countdown-om.</p>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="rubrika">
+    <div class="rubrika-head">
+      <span class="rubrika-num">RUBRIKA 02</span>
+      <span class="rubrika-title">Praćenje Prihoda</span>
+      <span class="rubrika-desc">Evidencija kroz godinu</span>
+    </div>
+    <div class="tools-grid">
+      <a class="tool-card" href="kvartalni-tracker.html">
+        <div class="alat-tag">ALAT 05</div>
+        <h3>Kvartalni Tracker Prihoda</h3>
+        <p>Unosi prihod po kvartalima i prati kumulativ u odnosu na zakonske limite.</p>
+        <span class="arrow">→</span>
+      </a>
+      <a class="tool-card" href="godisnji-pregled.html">
+        <div class="alat-tag">ALAT 06</div>
+        <h3>Godišnji Pregled Zarade</h3>
+        <p>Grafički prikaz prihoda po kvartalima, poređenje sa prošlom godinom, CSV izvoz.</p>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="rubrika">
+    <div class="rubrika-head">
+      <span class="rubrika-num">RUBRIKA 03</span>
+      <span class="rubrika-title">Dokumenti</span>
+      <span class="rubrika-desc">Fakture i ugovori</span>
+    </div>
+    <div class="tools-grid">
+      <a class="tool-card" href="generator-faktura.html">
+        <div class="alat-tag">ALAT 07</div>
+        <h3>Generator Faktura</h3>
+        <p>Popuni podatke i dobij fakturu spremnu za štampu ili PDF, za domaće i strane klijente.</p>
+        <span class="arrow">→</span>
+      </a>
+      <a class="tool-card" href="generator-ugovora.html">
+        <div class="alat-tag">ALAT 08</div>
+        <h3>Generator Ugovora</h3>
+        <p>Ugovor o delu ili Service Agreement — osnovni ugovor za angažovanje spreman za štampu.</p>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="rubrika">
+    <div class="rubrika-head">
+      <span class="rubrika-num">RUBRIKA 04</span>
+      <span class="rubrika-title">Kalkulatori za Odluke</span>
+      <span class="rubrika-desc">Brze provere</span>
+    </div>
+    <div class="tools-grid">
+      <a class="tool-card" href="neto-bruto-kalkulator.html">
+        <div class="alat-tag">ALAT 09</div>
+        <h3>Neto/Bruto Kalkulator</h3>
+        <p>Koliko ti ostaje u džepu — ili koliko da tražiš da bi ti ostao određeni neto iznos.</p>
+        <span class="arrow">→</span>
+      </a>
+      <a class="tool-card" href="pdv-prag-kalkulator.html">
+        <div class="alat-tag">ALAT 10</div>
+        <h3>PDV Prag Kalkulator</h3>
+        <p>Prati koliko si blizu obaveznog ulaska u sistem PDV-a (8.000.000 RSD / 12 meseci).</p>
+        <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <span>© 2026 Slobodnjak</span>
+  <div class="foot-links">
+    <a href="about-us.html">O nama</a>
+    <a href="privacy-policy.html">Politika privatnosti</a>
+  </div>
+</footer>
+
+</body>
+</html>

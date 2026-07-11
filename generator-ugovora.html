@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator Ugovora — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD; --paper-deep:#EDE4C8; --ink:#1E2A38; --ink-soft:#4A5A68;
+    --stamp:#A32638; --ruled:#2F5D8C; --line:#C9BE9C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink); font-family:'IBM Plex Sans', sans-serif; line-height:1.55; padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+  header.top{
+    background:var(--ink); color:var(--paper); padding:0.9rem 1.25rem;
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace; font-size:0.8rem; letter-spacing:0.06em;
+  }
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+  .wrap{max-width:820px; margin:0 auto; padding:2.2rem 1.25rem 0;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--stamp); font-weight:600; margin:0 0 0.6rem;
+  }
+  h1{font-family:'IBM Plex Mono', monospace; font-size:1.7rem; font-weight:700; margin:0 0 0.4rem; letter-spacing:-0.01em;}
+  .sub{color:var(--ink-soft); font-size:0.98rem; max-width:60ch; margin:0 0 1.5rem;}
+  .toggle-row{display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.6rem;}
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:0.82rem; padding:0.55rem 1rem;
+    border:1px solid var(--ink); background:var(--paper-deep); color:var(--ink); cursor:pointer; border-radius:2px;
+  }
+  .toggle-btn.active{background:var(--ink); color:var(--paper);}
+  .form-panel{
+    position:relative; background:var(--paper-deep); border:1px solid var(--ink); border-radius:2px;
+    padding:1.7rem 1.4rem 1.5rem; margin-bottom:1.8rem;
+  }
+  .form-panel::before{
+    content:"RUBRIKA 03 · ALAT 08"; position:absolute; top:-0.65rem; left:1rem;
+    background:var(--paper); border:1px solid var(--ink); padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.62rem; letter-spacing:0.08em; font-weight:600;
+  }
+  .form-section-title{
+    font-family:'IBM Plex Mono', monospace; font-size:0.75rem; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--stamp); font-weight:600; margin:1.4rem 0 0.8rem;
+  }
+  .form-section-title:first-child{margin-top:0;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;}
+  @media (max-width:560px){.grid2{grid-template-columns:1fr;}}
+  .field{margin-bottom:0.9rem;}
+  .field label{
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.03em;
+    text-transform:uppercase; color:var(--ink-soft); margin-bottom:0.3rem;
+  }
+  .field input, .field select, .field textarea{
+    width:100%; font-family:'IBM Plex Sans', sans-serif; font-size:0.92rem; color:var(--ink);
+    background:var(--paper); border:none; border-bottom:2px solid var(--ink); padding:0.45rem 0.2rem; outline:none;
+    resize:vertical;
+  }
+  .field textarea{border:1px solid var(--ink); padding:0.6rem; border-radius:2px; min-height:70px;}
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--stamp);}
+  .print-btn{
+    width:100%; background:var(--stamp); color:var(--paper); border:none;
+    font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:0.95rem; letter-spacing:0.05em;
+    padding:0.9rem; border-radius:2px; cursor:pointer; margin-top:0.6rem;
+  }
+  .print-btn:hover{background:#8a1f2f;}
+  .preview-label{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--ink-soft); margin-bottom:0.7rem;
+  }
+  #doc-preview{
+    background:#ffffff; color:#1a1a1a; border:1px solid #ccc; box-shadow:0 2px 10px rgba(0,0,0,0.08);
+    padding:2.5rem 2.5rem 2rem; margin-bottom:2rem; font-family:'IBM Plex Sans', sans-serif; font-size:0.92rem;
+  }
+  #doc-preview h2{
+    font-family:'IBM Plex Mono', monospace; text-align:center; font-size:1.25rem; margin:0 0 0.3rem; letter-spacing:0.02em;
+  }
+  #doc-preview .doc-meta{text-align:center; font-size:0.82rem; color:#555; margin-bottom:1.8rem;}
+  #doc-preview .parties{margin-bottom:1.5rem; font-size:0.9rem;}
+  #doc-preview .parties p{margin:0.3rem 0;}
+  #doc-preview .clause{margin-bottom:1.2rem;}
+  #doc-preview .clause-title{font-weight:700; font-size:0.85rem; margin-bottom:0.35rem;}
+  #doc-preview .clause-body{white-space:pre-line; color:#222;}
+  .sig-row{display:flex; justify-content:space-between; margin-top:2.5rem;}
+  .sig-block{text-align:center; width:45%;}
+  .sig-line{border-top:1px solid #999; padding-top:0.3rem; font-size:0.78rem; color:#666;}
+  details{
+    background:var(--paper-deep); border:1px solid var(--line); border-radius:2px;
+    padding:0.9rem 1.1rem; margin-bottom:1rem; font-size:0.86rem; color:var(--ink-soft);
+  }
+  details summary{cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--ink); letter-spacing:0.03em;}
+  details p{margin:0.7rem 0 0.2rem;}
+  footer.disclaimer{
+    max-width:820px; margin:0 auto; padding:0 1.25rem; font-size:0.78rem; color:var(--ink-soft);
+    border-top:1px solid var(--line); padding-top:1rem;
+  }
+  @media print{
+    body{background:#fff; padding:0;}
+    header.top, .wrap > .eyebrow, .wrap > h1, .wrap > .sub,
+    .toggle-row, .form-panel, .preview-label, details, footer.disclaimer{display:none !important;}
+    .wrap{max-width:none; padding:0; margin:0;}
+    #doc-preview{box-shadow:none; border:none; padding:0;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <a href="index.html">← nazad na sve alate</a>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">Rubrika 03 — Dokumenti · Alat 08</p>
+  <h1>Generator Ugovora</h1>
+  <p class="sub">Osnovni ugovor za angažovanje — u srpskoj verziji (ugovor o delu) za domaće klijente ili engleskoj verziji za strane klijente. Popuni podatke i preuzmi ili odštampaj.</p>
+
+  <div class="toggle-row" id="mode-toggle">
+    <button type="button" class="toggle-btn active" data-mode="domaci">Ugovor o delu (domaći klijent)</button>
+    <button type="button" class="toggle-btn" data-mode="strani">Service Agreement (strani klijent)</button>
+  </div>
+
+  <div class="form-panel">
+    <div class="form-section-title" id="lbl-strane">Ugovorne strane</div>
+    <div class="grid2">
+      <div class="field"><label id="lbl-naruc-naziv">Naručilac posla (klijent) — ime/naziv</label><input type="text" id="naruc-naziv"></div>
+      <div class="field"><label id="lbl-naruc-adresa">Naručilac — adresa</label><input type="text" id="naruc-adresa"></div>
+      <div class="field"><label id="lbl-naruc-id">Naručilac — PIB / matični broj (ili JMBG)</label><input type="text" id="naruc-id"></div>
+      <div class="field"><label id="lbl-izvr-naziv">Izvršilac (ti) — ime/naziv</label><input type="text" id="izvr-naziv"></div>
+      <div class="field"><label id="lbl-izvr-adresa">Izvršilac — adresa</label><input type="text" id="izvr-adresa"></div>
+      <div class="field"><label id="lbl-izvr-id">Izvršilac — PIB / matični broj (ili JMBG)</label><input type="text" id="izvr-id"></div>
+    </div>
+
+    <div class="form-section-title" id="lbl-detalji">Detalji ugovora</div>
+    <div class="grid2">
+      <div class="field"><label id="lbl-mesto">Mesto zaključenja</label><input type="text" id="d-mesto" value="Beograd"></div>
+      <div class="field"><label id="lbl-datum">Datum zaključenja</label><input type="date" id="d-datum"></div>
+      <div class="field"><label id="lbl-rok">Rok izvršenja / trajanje</label><input type="text" id="d-rok" placeholder="npr. 30 dana od potpisivanja"></div>
+      <div class="field"><label id="lbl-naknada">Naknada (iznos i valuta)</label><input type="text" id="d-naknada" placeholder="npr. 1.500 EUR"></div>
+      <div class="field"><label id="lbl-isplata">Način i rok isplate</label><input type="text" id="d-isplata" placeholder="npr. 50% avans, 50% po završetku"></div>
+      <div class="field"><label id="lbl-pravo">Merodavno pravo / nadležnost</label><input type="text" id="d-pravo" value="Republika Srbija"></div>
+    </div>
+
+    <div class="form-section-title" id="lbl-predmet-title">Predmet ugovora</div>
+    <div class="field">
+      <label id="lbl-predmet">Opis posla / usluge</label>
+      <textarea id="d-predmet" placeholder="Detaljan opis posla koji se ugovara..."></textarea>
+    </div>
+
+    <div class="form-section-title" id="lbl-ostalo-title">Dodatne odredbe (opciono)</div>
+    <div class="field">
+      <label id="lbl-ostalo">Posebne napomene</label>
+      <textarea id="d-ostalo" placeholder="npr. poverljivost, autorska prava, revizije..."></textarea>
+    </div>
+
+    <button class="print-btn" id="print-btn">Štampaj / Sačuvaj kao PDF</button>
+  </div>
+
+  <p class="preview-label">Pregled ugovora</p>
+  <div id="doc-preview">
+    <h2 id="p-title">UGOVOR O DELU</h2>
+    <div class="doc-meta" id="p-meta"></div>
+
+    <div class="parties" id="p-parties"></div>
+
+    <div class="clause">
+      <div class="clause-title" id="p-c1-title">Član 1. — Predmet ugovora</div>
+      <div class="clause-body" id="p-c1-body"></div>
+    </div>
+    <div class="clause">
+      <div class="clause-title" id="p-c2-title">Član 2. — Rok izvršenja</div>
+      <div class="clause-body" id="p-c2-body"></div>
+    </div>
+    <div class="clause">
+      <div class="clause-title" id="p-c3-title">Član 3. — Naknada</div>
+      <div class="clause-body" id="p-c3-body"></div>
+    </div>
+    <div class="clause">
+      <div class="clause-title" id="p-c4-title">Član 4. — Poverljivost</div>
+      <div class="clause-body" id="p-c4-body"></div>
+    </div>
+    <div class="clause">
+      <div class="clause-title" id="p-c5-title">Član 5. — Raskid ugovora</div>
+      <div class="clause-body" id="p-c5-body"></div>
+    </div>
+    <div class="clause" id="p-c6-wrap">
+      <div class="clause-title" id="p-c6-title">Član 6. — Dodatne odredbe</div>
+      <div class="clause-body" id="p-c6-body"></div>
+    </div>
+    <div class="clause">
+      <div class="clause-title" id="p-c7-title">Član 7. — Merodavno pravo</div>
+      <div class="clause-body" id="p-c7-body"></div>
+    </div>
+
+    <div class="sig-row">
+      <div class="sig-block"><div class="sig-line" id="p-sig1"></div></div>
+      <div class="sig-block"><div class="sig-line" id="p-sig2"></div></div>
+    </div>
+  </div>
+
+  <details>
+    <summary>Napomena o pravnoj snazi</summary>
+    <p>Ovo je opšti template za jednostavne ugovore o angažovanju. Za veće poslove, dugoročnu saradnju ili posebne uslove (npr. prenos autorskih prava, klauzule o konkurenciji), preporučuje se konsultacija sa advokatom pre potpisivanja.</p>
+    <p>Ugovor o delu ne zamenjuje registraciju delatnosti ako je posao takve prirode da zahteva status preduzetnika — proveri <a href="frilenser-ili-pausalac.html">Frilenser ili Paušalac</a> vodič ako nisi siguran koji status ti odgovara.</p>
+  </details>
+</div>
+
+<footer class="disclaimer">
+  Ovaj alat je informativnog karaktera i ne predstavlja pravni savet. Za ugovore veće vrednosti ili složenije uslove konsultuj se sa advokatom.
+</footer>
+
+<script>
+  let mode = 'domaci';
+
+  const TXT = {
+    domaci: {
+      title: 'UGOVOR O DELU',
+      strane: 'Ugovorne strane', detalji: 'Detalji ugovora',
+      naruc: 'Naručilac posla (klijent)', izvr: 'Izvršilac (ti)',
+      naruc_naziv:'Naručilac posla (klijent) — ime/naziv', naruc_adresa:'Naručilac — adresa', naruc_id:'Naručilac — PIB / matični broj (ili JMBG)',
+      izvr_naziv:'Izvršilac (ti) — ime/naziv', izvr_adresa:'Izvršilac — adresa', izvr_id:'Izvršilac — PIB / matični broj (ili JMBG)',
+      mesto:'Mesto zaključenja', datum:'Datum zaključenja', rok:'Rok izvršenja / trajanje',
+      naknada:'Naknada (iznos i valuta)', isplata:'Način i rok isplate', pravo:'Merodavno pravo / nadležnost',
+      predmetTitle:'Predmet ugovora', predmet:'Opis posla / usluge',
+      ostaloTitle:'Dodatne odredbe (opciono)', ostalo:'Posebne napomene',
+      c1:'Član 1. — Predmet ugovora', c2:'Član 2. — Rok izvršenja', c3:'Član 3. — Naknada',
+      c4:'Član 4. — Poverljivost', c5:'Član 5. — Raskid ugovora', c6:'Član 6. — Dodatne odredbe', c7:'Član 7. — Merodavno pravo',
+      sig1:'Naručilac posla', sig2:'Izvršilac',
+      c4body:'Ugovorne strane se obavezuju da čuvaju kao poverljive sve podatke i informacije razmenjene tokom trajanja i po prestanku ovog ugovora, a koje po svojoj prirodi predstavljaju poslovnu tajnu.',
+      c5body:'Svaka ugovorna strana može raskinuti ovaj ugovor u slučaju bitne povrede ugovornih obaveza od strane druge strane, uz prethodno pismeno obaveštenje u razumnom roku.',
+      c7body:(pravo) => `Na ovaj ugovor primenjuje se pravo ${pravo || 'Republike Srbije'}. Eventualne sporove strane će pokušati da reše mirnim putem, a u suprotnom je nadležan stvarno nadležan sud.`
+    },
+    strani: {
+      title: 'SERVICE AGREEMENT',
+      strane: 'Parties', detalji: 'Agreement details',
+      naruc: 'Client', izvr: 'Contractor (you)',
+      naruc_naziv:'Client — name / company', naruc_adresa:'Client — address', naruc_id:'Client — Tax/VAT ID (optional)',
+      izvr_naziv:'Contractor (you) — full name', izvr_adresa:'Contractor — address', izvr_id:'Contractor — Tax ID (optional)',
+      mesto:'Place of signing', datum:'Date of signing', rok:'Timeline / duration',
+      naknada:'Compensation (amount and currency)', isplata:'Payment terms', pravo:'Governing law',
+      predmetTitle:'Scope of services', predmet:'Description of work / services',
+      ostaloTitle:'Additional terms (optional)', ostalo:'Special notes',
+      c1:'1. Scope of Services', c2:'2. Timeline', c3:'3. Compensation',
+      c4:'4. Confidentiality', c5:'5. Termination', c6:'6. Additional Terms', c7:'7. Governing Law',
+      sig1:'Client', sig2:'Contractor',
+      c4body:'Both parties agree to keep confidential all information exchanged during and after the term of this agreement that is reasonably considered proprietary or sensitive.',
+      c5body:'Either party may terminate this agreement in the event of a material breach by the other party, upon reasonable prior written notice.',
+      c7body:(pravo) => `This agreement is governed by the laws of ${pravo || 'the Republic of Serbia'}. The parties will attempt to resolve any disputes amicably; failing that, the competent court shall have jurisdiction.`
+    }
+  };
+
+  const toggleBtns = document.querySelectorAll('#mode-toggle .toggle-btn');
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.dataset.mode;
+      applyLabels();
+      render();
+    });
+  });
+
+  function applyLabels(){
+    const T = TXT[mode];
+    document.getElementById('lbl-strane').textContent = T.strane;
+    document.getElementById('lbl-detalji').textContent = T.detalji;
+    document.getElementById('lbl-naruc-naziv').textContent = T.naruc_naziv;
+    document.getElementById('lbl-naruc-adresa').textContent = T.naruc_adresa;
+    document.getElementById('lbl-naruc-id').textContent = T.naruc_id;
+    document.getElementById('lbl-izvr-naziv').textContent = T.izvr_naziv;
+    document.getElementById('lbl-izvr-adresa').textContent = T.izvr_adresa;
+    document.getElementById('lbl-izvr-id').textContent = T.izvr_id;
+    document.getElementById('lbl-mesto').textContent = T.mesto;
+    document.getElementById('lbl-datum').textContent = T.datum;
+    document.getElementById('lbl-rok').textContent = T.rok;
+    document.getElementById('lbl-naknada').textContent = T.naknada;
+    document.getElementById('lbl-isplata').textContent = T.isplata;
+    document.getElementById('lbl-pravo').textContent = T.pravo;
+    document.getElementById('lbl-predmet-title').textContent = T.predmetTitle;
+    document.getElementById('lbl-predmet').textContent = T.predmet;
+    document.getElementById('lbl-ostalo-title').textContent = T.ostaloTitle;
+    document.getElementById('lbl-ostalo').textContent = T.ostalo;
+  }
+
+  function render(){
+    const T = TXT[mode];
+    const val = id => document.getElementById(id).value.trim();
+
+    document.getElementById('p-title').textContent = T.title;
+
+    const mesto = val('d-mesto') || '—';
+    const datum = val('d-datum') || '—';
+    document.getElementById('p-meta').textContent = `${mesto}, ${datum}`;
+
+    const naruc = [val('naruc-naziv'), val('naruc-adresa'), val('naruc-id')].filter(Boolean).join(', ');
+    const izvr = [val('izvr-naziv'), val('izvr-adresa'), val('izvr-id')].filter(Boolean).join(', ');
+    document.getElementById('p-parties').innerHTML = `
+      <p><b>${T.naruc}:</b> ${naruc || '—'}</p>
+      <p><b>${T.izvr}:</b> ${izvr || '—'}</p>
+    `;
+
+    document.getElementById('p-c1-title').textContent = T.c1;
+    document.getElementById('p-c1-body').textContent = val('d-predmet') || '—';
+
+    document.getElementById('p-c2-title').textContent = T.c2;
+    document.getElementById('p-c2-body').textContent = val('d-rok') || '—';
+
+    document.getElementById('p-c3-title').textContent = T.c3;
+    const naknada = val('d-naknada') || '—';
+    const isplata = val('d-isplata');
+    document.getElementById('p-c3-body').textContent = naknada + (isplata ? ` — ${isplata}` : '');
+
+    document.getElementById('p-c4-title').textContent = T.c4;
+    document.getElementById('p-c4-body').textContent = T.c4body;
+
+    document.getElementById('p-c5-title').textContent = T.c5;
+    document.getElementById('p-c5-body').textContent = T.c5body;
+
+    const ostalo = val('d-ostalo');
+    document.getElementById('p-c6-title').textContent = T.c6;
+    document.getElementById('p-c6-wrap').style.display = ostalo ? 'block' : 'none';
+    document.getElementById('p-c6-body').textContent = ostalo;
+
+    document.getElementById('p-c7-title').textContent = T.c7;
+    document.getElementById('p-c7-body').textContent = T.c7body(val('d-pravo'));
+
+    document.getElementById('p-sig1').textContent = T.sig1;
+    document.getElementById('p-sig2').textContent = T.sig2;
+  }
+
+  document.querySelectorAll('.form-panel input, .form-panel textarea').forEach(el => {
+    el.addEventListener('input', render);
+  });
+
+  document.getElementById('print-btn').addEventListener('click', () => window.print());
+
+  document.getElementById('d-datum').value = new Date().toISOString().split('T')[0];
+  applyLabels();
+  render();
+</script>
+
+</body>
+</html>

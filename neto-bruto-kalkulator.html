@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neto/Bruto Kalkulator — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD; --paper-deep:#EDE4C8; --ink:#1E2A38; --ink-soft:#4A5A68;
+    --stamp:#A32638; --ruled:#2F5D8C; --line:#C9BE9C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink); font-family:'IBM Plex Sans', sans-serif; line-height:1.55; padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+  header.top{
+    background:var(--ink); color:var(--paper); padding:0.9rem 1.25rem;
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace; font-size:0.8rem; letter-spacing:0.06em;
+  }
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+  .wrap{max-width:760px; margin:0 auto; padding:2.2rem 1.25rem 0;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--stamp); font-weight:600; margin:0 0 0.6rem;
+  }
+  h1{font-family:'IBM Plex Mono', monospace; font-size:1.7rem; font-weight:700; margin:0 0 0.4rem; letter-spacing:-0.01em;}
+  .sub{color:var(--ink-soft); font-size:0.98rem; max-width:56ch; margin:0 0 1.8rem;}
+
+  .toggle-row{display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1rem;}
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:0.82rem; padding:0.55rem 1rem;
+    border:1px solid var(--ink); background:var(--paper-deep); color:var(--ink); cursor:pointer; border-radius:2px;
+  }
+  .toggle-btn.active{background:var(--ink); color:var(--paper);}
+
+  .form-panel{
+    position:relative; background:var(--paper-deep); border:1px solid var(--ink); border-radius:2px;
+    padding:1.6rem 1.4rem 1.4rem; margin-bottom:1.6rem;
+  }
+  .form-panel::before{
+    content:"RUBRIKA 04 · ALAT 09"; position:absolute; top:-0.65rem; left:1rem;
+    background:var(--paper); border:1px solid var(--ink); padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.62rem; letter-spacing:0.08em; font-weight:600;
+  }
+  .field{margin-bottom:1rem;}
+  .field label{
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:0.75rem; letter-spacing:0.04em;
+    text-transform:uppercase; color:var(--ink-soft); margin-bottom:0.4rem;
+  }
+  .field input[type=number]{
+    width:100%; font-family:'IBM Plex Mono', monospace; font-size:1.35rem; font-weight:600; color:var(--ink);
+    background:var(--paper); border:none; border-bottom:2px solid var(--ink); padding:0.5rem 0.2rem; outline:none;
+  }
+  .field input[type=number]:focus{border-bottom-color:var(--stamp);}
+  .period-row{display:flex; gap:0.6rem;}
+  .period-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:0.78rem; padding:0.45rem 0.8rem;
+    border:1px solid var(--ink-soft); background:var(--paper); color:var(--ink-soft); cursor:pointer; border-radius:2px;
+  }
+  .period-btn.active{border-color:var(--ink); color:var(--ink); background:var(--paper-deep); font-weight:600;}
+
+  .hero{
+    position:relative; background:var(--ink); color:var(--paper); border-radius:2px;
+    padding:1.6rem 1.5rem; margin-bottom:1.2rem; text-align:center; display:none;
+  }
+  .hero .corner{font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.1em; color:#B9AE8C; margin-bottom:0.6rem;}
+  .hero .amount{font-family:'IBM Plex Mono', monospace; font-size:2.4rem; font-weight:700; color:#F0C419; line-height:1.1;}
+  .hero .caption{font-size:0.85rem; color:#D9D2BC; margin-top:0.5rem;}
+  .hero .model-badge{
+    display:inline-block; margin-top:0.7rem; font-family:'IBM Plex Mono', monospace; font-size:0.72rem;
+    border:1px solid var(--stamp); color:#F0A0AC; padding:0.25rem 0.6rem; border-radius:2px;
+  }
+
+  .breakdown{
+    background:var(--paper-deep); border:1px solid var(--line); border-radius:2px;
+    padding:1rem 1.1rem; margin-bottom:1.6rem; display:none;
+  }
+  .line{display:flex; justify-content:space-between; font-size:0.87rem; padding:0.35rem 0; border-bottom:1px dashed var(--line);}
+  .line:last-child{border-bottom:none;}
+  .line .val{font-family:'IBM Plex Mono', monospace;}
+
+  details{
+    background:var(--paper-deep); border:1px solid var(--line); border-radius:2px;
+    padding:0.9rem 1.1rem; margin-bottom:1rem; font-size:0.86rem; color:var(--ink-soft);
+  }
+  details summary{cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--ink); letter-spacing:0.03em;}
+  details p{margin:0.7rem 0 0.2rem;}
+
+  footer.disclaimer{
+    max-width:760px; margin:0 auto; padding:0 1.25rem; font-size:0.78rem; color:var(--ink-soft);
+    border-top:1px solid var(--line); padding-top:1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <a href="index.html">← nazad na sve alate</a>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">Rubrika 04 — Kalkulatori za odluke · Alat 09</p>
+  <h1>Neto/Bruto Kalkulator</h1>
+  <p class="sub">Brza provera koliko ti ostaje u džepu — ili koliko treba da tražiš bruto da bi ti ostao određeni neto iznos. Korisno tokom pregovora cene.</p>
+
+  <div class="toggle-row" id="dir-toggle">
+    <button type="button" class="toggle-btn active" data-dir="bruto-neto">Imam bruto → koliko mi ostaje?</button>
+    <button type="button" class="toggle-btn" data-dir="neto-bruto">Želim neto → koliko da tražim?</button>
+  </div>
+
+  <div class="form-panel">
+    <div class="field">
+      <label id="input-label">Bruto iznos (RSD)</label>
+      <input type="number" id="amount" placeholder="npr. 150000" min="0">
+    </div>
+    <div class="period-row" id="period-toggle">
+      <button type="button" class="period-btn active" data-period="mesecno">Mesečno</button>
+      <button type="button" class="period-btn" data-period="kvartalno">Kvartalno</button>
+    </div>
+  </div>
+
+  <div class="hero" id="hero">
+    <div class="corner" id="hero-label">OSTAJE TI (NETO)</div>
+    <div class="amount" id="hero-amount">—</div>
+    <div class="caption" id="hero-caption"></div>
+    <div class="model-badge" id="hero-model"></div>
+  </div>
+
+  <div class="breakdown" id="breakdown">
+    <div class="line"><span>Normirani troškovi</span><span class="val" id="b-trosak"></span></div>
+    <div class="line"><span>Oporeziva osnovica</span><span class="val" id="b-osnovica"></span></div>
+    <div class="line"><span>Porez</span><span class="val" id="b-porez"></span></div>
+    <div class="line"><span>PIO doprinos</span><span class="val" id="b-pio"></span></div>
+    <div class="line"><span>Zdravstveni doprinos</span><span class="val" id="b-zdravstvo"></span></div>
+    <div class="line"><span>Ukupno dažbine</span><span class="val" id="b-ukupno"></span></div>
+  </div>
+
+  <details>
+    <summary>Kako se ovo računa?</summary>
+    <p>Alat automatski računa i po Modelu A i po Modelu B frilenserskog samooporezivanja i prikazuje isplativiji — isti princip kao u <a href="model-a-b-kalkulator.html">Model A/B Kalkulatoru</a>, samo kondenzovano na jedan broj za brzu proveru.</p>
+    <p>Kod smera "Želim neto → koliko da tražim", alat pronalazi potreban bruto iznos isprobavanjem vrednosti dok neto ne odgovara tvom cilju (do na par dinara tačno).</p>
+    <p>Kvartalni iznos se za "mesečno" deli/množi sa 3 radi prikaza — imaj na umu da se frilenserski porez zvanično obračunava kvartalno, ne mesečno, pa mesečni prikaz služi samo kao orijentir.</p>
+  </details>
+</div>
+
+<footer class="disclaimer">
+  Ovaj alat je informativnog karaktera i ne predstavlja poreski savet. Ne uzima u obzir da li si već osiguran po drugom osnovu — za precizniji obračun sa tom opcijom koristi Model A/B Kalkulator.
+</footer>
+
+<script>
+  const PARAMS = {
+    A: { trosakFiksni: 110647, porez: 0.20, pio: 0.24, zdravstvoStopa: 0.103, zdravstvoMin: 4789 },
+    B: { trosakFiksni: 66733, trosakProcenat: 0.34, porez: 0.10, pio: 0.24, pioMin: 25218, zdravstvoStopa: 0.103, zdravstvoMin: 4789 }
+  };
+
+  const fmt = n => Math.round(n).toLocaleString('sr-RS') + ' RSD';
+
+  function calcModelA(prihodKvartalno){
+    const p = PARAMS.A;
+    const osnovica = Math.max(0, prihodKvartalno - p.trosakFiksni);
+    const porez = osnovica * p.porez;
+    const pio = osnovica * p.pio;
+    const zdravstvo = prihodKvartalno > 0 ? Math.max(osnovica * p.zdravstvoStopa, p.zdravstvoMin) : 0;
+    const ukupno = porez + pio + zdravstvo;
+    return { trosak: p.trosakFiksni, osnovica, porez, pio, zdravstvo, ukupno, neto: prihodKvartalno - ukupno };
+  }
+
+  function calcModelB(prihodKvartalno){
+    const p = PARAMS.B;
+    const trosak = p.trosakFiksni + prihodKvartalno * p.trosakProcenat;
+    const osnovica = Math.max(0, prihodKvartalno - trosak);
+    const porez = osnovica * p.porez;
+    const pio = prihodKvartalno > 0 ? Math.max(osnovica * p.pio, p.pioMin) : 0;
+    const zdravstvo = prihodKvartalno > 0 ? Math.max(osnovica * p.zdravstvoStopa, p.zdravstvoMin) : 0;
+    const ukupno = porez + pio + zdravstvo;
+    return { trosak, osnovica, porez, pio, zdravstvo, ukupno, neto: prihodKvartalno - ukupno };
+  }
+
+  function bestModel(prihodKvartalno){
+    const a = calcModelA(prihodKvartalno);
+    const b = calcModelB(prihodKvartalno);
+    return a.ukupno <= b.ukupno ? { name: 'A', ...a } : { name: 'B', ...b };
+  }
+
+  // reverse: find bruto kvartalno that yields target neto kvartalno
+  function findBrutoForNeto(targetNeto){
+    let lo = 0, hi = targetNeto * 3 + 1000000; // generous upper bound
+    for (let i = 0; i < 60; i++){
+      const mid = (lo + hi) / 2;
+      const r = bestModel(mid);
+      if (r.neto < targetNeto) lo = mid; else hi = mid;
+    }
+    return hi;
+  }
+
+  let direction = 'bruto-neto';
+  let period = 'mesecno';
+
+  const dirBtns = document.querySelectorAll('#dir-toggle .toggle-btn');
+  dirBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      dirBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      direction = btn.dataset.dir;
+      document.getElementById('input-label').textContent = direction === 'bruto-neto'
+        ? `Bruto iznos (RSD)` : `Željeni neto iznos (RSD)`;
+      calculate();
+    });
+  });
+
+  const periodBtns = document.querySelectorAll('#period-toggle .period-btn');
+  periodBtns.forEach(btn => {
+    periodBtns.forEach(b => {});
+    btn.addEventListener('click', () => {
+      periodBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      period = btn.dataset.period;
+      calculate();
+    });
+  });
+
+  const amountInput = document.getElementById('amount');
+  amountInput.addEventListener('input', calculate);
+
+  function calculate(){
+    const inputVal = parseFloat(amountInput.value);
+    const hero = document.getElementById('hero');
+    const breakdown = document.getElementById('breakdown');
+
+    if (!inputVal || inputVal <= 0){
+      hero.style.display = 'none';
+      breakdown.style.display = 'none';
+      return;
+    }
+
+    const periodMultiplier = period === 'mesecno' ? 3 : 1;
+    const inputKvartalno = inputVal * periodMultiplier;
+
+    let result, brutoKvartalno, netoKvartalno;
+
+    if (direction === 'bruto-neto'){
+      result = bestModel(inputKvartalno);
+      brutoKvartalno = inputKvartalno;
+      netoKvartalno = result.neto;
+    } else {
+      brutoKvartalno = findBrutoForNeto(inputKvartalno);
+      result = bestModel(brutoKvartalno);
+      netoKvartalno = result.neto;
+    }
+
+    const divisor = period === 'mesecno' ? 3 : 1;
+    const periodLabel = period === 'mesecno' ? 'mesečno' : 'kvartalno';
+
+    hero.style.display = 'block';
+    breakdown.style.display = 'block';
+
+    if (direction === 'bruto-neto'){
+      document.getElementById('hero-label').textContent = 'OSTAJE TI (NETO)';
+      document.getElementById('hero-amount').textContent = fmt(netoKvartalno / divisor);
+      document.getElementById('hero-caption').textContent = `od bruto ${fmt(inputVal)} ${periodLabel}`;
+    } else {
+      document.getElementById('hero-label').textContent = 'TREBA TI BRUTO';
+      document.getElementById('hero-amount').textContent = fmt(brutoKvartalno / divisor);
+      document.getElementById('hero-caption').textContent = `da bi ti ostalo neto ${fmt(inputVal)} ${periodLabel}`;
+    }
+    document.getElementById('hero-model').textContent = `Isplativiji: Model ${result.name}`;
+
+    document.getElementById('b-trosak').textContent = fmt(result.trosak / divisor);
+    document.getElementById('b-osnovica').textContent = fmt(result.osnovica / divisor);
+    document.getElementById('b-porez').textContent = fmt(result.porez / divisor);
+    document.getElementById('b-pio').textContent = fmt(result.pio / divisor);
+    document.getElementById('b-zdravstvo').textContent = fmt(result.zdravstvo / divisor);
+    document.getElementById('b-ukupno').textContent = fmt(result.ukupno / divisor);
+  }
+</script>
+
+</body>
+</html>

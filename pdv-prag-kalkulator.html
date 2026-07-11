@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDV Prag Kalkulator — Slobodnjak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5EFDD; --paper-deep:#EDE4C8; --ink:#1E2A38; --ink-soft:#4A5A68;
+    --stamp:#A32638; --ruled:#2F5D8C; --line:#C9BE9C; --good:#3C7A4E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper);
+    background-image:linear-gradient(var(--line) 1px, transparent 1px);
+    background-size:100% 2.1em;
+    color:var(--ink); font-family:'IBM Plex Sans', sans-serif; line-height:1.55; padding:0 0 4rem;
+  }
+  a{color:var(--ruled);}
+  header.top{
+    background:var(--ink); color:var(--paper); padding:0.9rem 1.25rem;
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace; font-size:0.8rem; letter-spacing:0.06em;
+  }
+  header.top a{color:var(--paper); text-decoration:none; opacity:0.85;}
+  header.top a:hover{opacity:1;}
+  .wrap{max-width:760px; margin:0 auto; padding:2.2rem 1.25rem 0;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--stamp); font-weight:600; margin:0 0 0.6rem;
+  }
+  h1{font-family:'IBM Plex Mono', monospace; font-size:1.7rem; font-weight:700; margin:0 0 0.4rem; letter-spacing:-0.01em;}
+  .sub{color:var(--ink-soft); font-size:0.98rem; max-width:56ch; margin:0 0 1.8rem;}
+
+  .source-toggle{display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.6rem;}
+  .toggle-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:0.82rem; padding:0.55rem 1rem;
+    border:1px solid var(--ink); background:var(--paper-deep); color:var(--ink); cursor:pointer; border-radius:2px;
+  }
+  .toggle-btn.active{background:var(--ink); color:var(--paper);}
+
+  .form-panel{
+    position:relative; background:var(--paper-deep); border:1px solid var(--ink); border-radius:2px;
+    padding:1.6rem 1.4rem 1.4rem; margin-bottom:1.6rem;
+  }
+  .form-panel::before{
+    content:"RUBRIKA 04 · ALAT 10"; position:absolute; top:-0.65rem; left:1rem;
+    background:var(--paper); border:1px solid var(--ink); padding:0.12rem 0.55rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.62rem; letter-spacing:0.08em; font-weight:600;
+  }
+  .field{margin-bottom:1rem;}
+  .field label{
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:0.75rem; letter-spacing:0.04em;
+    text-transform:uppercase; color:var(--ink-soft); margin-bottom:0.4rem;
+  }
+  .field input[type=number]{
+    width:100%; font-family:'IBM Plex Mono', monospace; font-size:1.35rem; font-weight:600; color:var(--ink);
+    background:var(--paper); border:none; border-bottom:2px solid var(--ink); padding:0.5rem 0.2rem; outline:none;
+  }
+  .field input[type=number]:focus{border-bottom-color:var(--stamp);}
+  .hint{font-size:0.8rem; color:var(--ink-soft); margin-top:0.35rem;}
+  .from-tracker-note{
+    font-size:0.85rem; color:var(--ink-soft); background:var(--paper); border:1px solid var(--line);
+    border-radius:2px; padding:0.7rem 0.9rem;
+  }
+
+  .status-card{
+    position:relative; border-radius:2px; padding:1.4rem 1.4rem 1.5rem; margin-bottom:1.6rem;
+    background:var(--ink); color:var(--paper);
+  }
+  .status-card .corner{font-family:'IBM Plex Mono', monospace; font-size:0.68rem; letter-spacing:0.1em; color:#B9AE8C; margin-bottom:0.6rem;}
+  .status-card .pct{font-family:'IBM Plex Mono', monospace; font-size:2.6rem; font-weight:700; color:#F0C419; line-height:1;}
+  .status-card .pct-label{font-size:0.85rem; color:#D9D2BC; margin:0.3rem 0 1rem;}
+  .bar-track{background:rgba(255,255,255,0.15); border-radius:3px; height:12px; overflow:hidden; margin-bottom:0.8rem;}
+  .bar-fill{height:100%; background:var(--good); transition:width 0.3s;}
+  .bar-fill.warn{background:#C88A1E;}
+  .bar-fill.danger{background:var(--stamp);}
+  .status-msg{font-size:0.9rem; color:#F0E9D2; line-height:1.5;}
+
+  .projection{
+    background:var(--paper-deep); border:1px solid var(--line); border-radius:2px;
+    padding:1rem 1.1rem; margin-bottom:1.6rem; display:none;
+  }
+  .projection .ptitle{
+    font-family:'IBM Plex Mono', monospace; font-size:0.7rem; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--ink-soft); margin-bottom:0.5rem;
+  }
+
+  details{
+    background:var(--paper-deep); border:1px solid var(--line); border-radius:2px;
+    padding:0.9rem 1.1rem; margin-bottom:1rem; font-size:0.86rem; color:var(--ink-soft);
+  }
+  details summary{cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--ink); letter-spacing:0.03em;}
+  details p{margin:0.7rem 0 0.2rem;}
+  details code{background:var(--paper); padding:0.1rem 0.3rem; border-radius:2px;}
+
+  footer.disclaimer{
+    max-width:760px; margin:0 auto; padding:0 1.25rem; font-size:0.78rem; color:var(--ink-soft);
+    border-top:1px solid var(--line); padding-top:1rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span>SLOBODNJAK</span>
+  <a href="index.html">← nazad na sve alate</a>
+</header>
+
+<div class="wrap">
+  <p class="eyebrow">Rubrika 04 — Kalkulatori za odluke · Alat 10</p>
+  <h1>PDV Prag Kalkulator</h1>
+  <p class="sub">Prati koliko si blizu obaveznog ulaska u sistem PDV-a — prag je 8.000.000 RSD prometa u bilo kojih 12 uzastopnih meseci, ne po kalendarskoj godini.</p>
+
+  <div class="source-toggle" id="source-toggle">
+    <button type="button" class="toggle-btn active" data-source="tracker">Koristi podatke iz Trackera</button>
+    <button type="button" class="toggle-btn" data-source="rucno">Unesi ručno</button>
+  </div>
+
+  <div class="form-panel" id="form-panel">
+    <div class="field" id="manual-field" style="display:none;">
+      <label for="manual-amount">Promet u poslednjih 12 meseci (RSD)</label>
+      <input type="number" id="manual-amount" placeholder="npr. 5200000" min="0">
+    </div>
+    <div class="from-tracker-note" id="tracker-note"></div>
+  </div>
+
+  <div class="status-card">
+    <div class="corner">TVOJ PROMET (POSLEDNJIH 12 MESECI)</div>
+    <div class="pct" id="status-pct">0%</div>
+    <div class="pct-label">od PDV praga (8.000.000 RSD)</div>
+    <div class="bar-track"><div class="bar-fill" id="status-bar" style="width:0%"></div></div>
+    <div class="status-msg" id="status-msg">Unesi podatke da vidiš svoj status.</div>
+  </div>
+
+  <div class="projection" id="projection">
+    <div class="ptitle">Projekcija</div>
+    <div id="projection-text"></div>
+  </div>
+
+  <details>
+    <summary>Šta znači ulazak u sistem PDV-a?</summary>
+    <p>Kada tvoj promet u bilo kojih 12 uzastopnih meseci pređe <code>8.000.000 RSD</code>, postaješ obveznik PDV-a bez obzira na to da li si frilenser ili paušalac. To znači:</p>
+    <p>— Moraš da se registruješ za PDV u roku od 5 dana od prelaska praga.<br>— Na svoje fakture dodaješ PDV (uglavnom 20%), što za strane klijente najčešće nije problem (izvoz usluga je oslobođen PDV-a uz odgovarajuću dokumentaciju), ali domaćim klijentima poskupljuje tvoju uslugu.<br>— Paušalac automatski gubi pravo na paušalno oporezivanje ulaskom u PDV sistem.<br>— Dobijaš pravo na odbitak ulaznog PDV-a za poslovne troškove.</p>
+    <p>Prag se računa klizno (rolling), ne po kalendarskoj godini — zato praćenje poslednjih 12 meseci, a ne "od januara", daje tačniju sliku.</p>
+  </details>
+</div>
+
+<footer class="disclaimer">
+  Ovaj alat je informativnog karaktera i ne predstavlja poreski savet. Za tačnu proveru statusa i rokove registracije proveri sa Poreskom upravom ili knjigovođom.
+</footer>
+
+<script>
+  const PDV_LIMIT = 8000000;
+  const STORAGE_KEY = 'slobodnjak_kvartalni_prihodi';
+  const quarterOrder = ['Q1','Q2','Q3','Q4'];
+  const fmt = n => Math.round(n).toLocaleString('sr-RS') + ' RSD';
+
+  function loadTrackerData(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch(e){ return {}; }
+  }
+
+  function quarterIndex(key){
+    const [y, q] = key.split('-');
+    return parseInt(y) * 4 + quarterOrder.indexOf(q);
+  }
+
+  function getTrackerRollingTotal(){
+    const data = loadTrackerData();
+    const keys = Object.keys(data).sort((a,b) => quarterIndex(a) - quarterIndex(b));
+    const last4 = keys.slice(-4);
+    return { total: last4.reduce((s,k) => s + data[k], 0), quarters: last4, data };
+  }
+
+  let source = 'tracker';
+  const sourceBtns = document.querySelectorAll('#source-toggle .toggle-btn');
+  sourceBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sourceBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      source = btn.dataset.source;
+      document.getElementById('manual-field').style.display = source === 'rucno' ? 'block' : 'none';
+      document.getElementById('tracker-note').style.display = source === 'tracker' ? 'block' : 'none';
+      render();
+    });
+  });
+
+  document.getElementById('manual-amount').addEventListener('input', render);
+
+  function setBar(value){
+    const pct = Math.min(100, (value / PDV_LIMIT) * 100);
+    const bar = document.getElementById('status-bar');
+    bar.style.width = pct + '%';
+    bar.classList.remove('warn', 'danger');
+    if (pct >= 100) bar.classList.add('danger');
+    else if (pct >= 90) bar.classList.add('warn');
+    else if (pct >= 70) bar.classList.add('warn');
+    document.getElementById('status-pct').textContent = pct.toFixed(0) + '%';
+
+    const msg = document.getElementById('status-msg');
+    if (pct >= 100){
+      msg.textContent = `Prešao si prag od 8.000.000 RSD — po zakonu si u obavezi da se registruješ za PDV u roku od 5 dana.`;
+    } else if (pct >= 90){
+      msg.textContent = `Vrlo blizu si praga (ostalo je ${fmt(PDV_LIMIT - value)}). Vreme je da planiraš šta ulazak u PDV znači za tvoje cene i klijente.`;
+    } else if (pct >= 70){
+      msg.textContent = `Približavaš se pragu (ostalo je ${fmt(PDV_LIMIT - value)}). Dobro je da počneš da razmišljaš unapred.`;
+    } else {
+      msg.textContent = `Nisi blizu praga. Ostalo je ${fmt(PDV_LIMIT - value)} do obaveznog ulaska u PDV.`;
+    }
+  }
+
+  function render(){
+    let value = 0;
+    const trackerNote = document.getElementById('tracker-note');
+
+    if (source === 'tracker'){
+      const { total, quarters } = getTrackerRollingTotal();
+      value = total;
+      trackerNote.style.display = 'block';
+      trackerNote.textContent = quarters.length
+        ? `Koristi se zbir poslednja ${quarters.length} kvartala unetih u Kvartalnom Tracker-u Prihoda: ${fmt(total)}.`
+        : `Nema unetih podataka u Tracker-u. Unesi ih tamo ili pređi na ručni unos.`;
+    } else {
+      trackerNote.style.display = 'none';
+      value = parseFloat(document.getElementById('manual-amount').value) || 0;
+    }
+
+    setBar(value);
+
+    // simple projection: assume flat continuation of average quarterly pace from tracker
+    const projection = document.getElementById('projection');
+    const projText = document.getElementById('projection-text');
+    if (source === 'tracker'){
+      const { total, quarters } = getTrackerRollingTotal();
+      if (quarters.length >= 2 && total < PDV_LIMIT){
+        const avgPerQuarter = total / quarters.length;
+        if (avgPerQuarter > 0){
+          const remaining = PDV_LIMIT - total;
+          const quartersLeft = remaining / avgPerQuarter;
+          projection.style.display = 'block';
+          projText.textContent = `Ako nastaviš sličnim tempom (prosek ${fmt(avgPerQuarter)}/kvartalno), prag bi mogao da bude dostignut za otprilike ${Math.ceil(quartersLeft)} kvartal(a).`;
+        } else {
+          projection.style.display = 'none';
+        }
+      } else {
+        projection.style.display = 'none';
+      }
+    } else {
+      projection.style.display = 'none';
+    }
+  }
+
+  render();
+</script>
+
+</body>
+</html>

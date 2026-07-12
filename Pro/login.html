@@ -1,1 +1,213 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slobodnjak Pro — Prijava</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --paper: #F5EFDD;
+    --ink: #1E2A38;
+    --stamp: #A32638;
+    --ruled: #2F5D8C;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--paper);
+    background-image:
+      linear-gradient(var(--ruled) 1px, transparent 1px);
+    background-size: 100% 34px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    max-width: 420px;
+    width: 100%;
+    padding: 32px 28px;
+    position: relative;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .rubrika {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--stamp);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 24px;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  p.sub {
+    margin: 0 0 24px;
+    font-size: 14px;
+    color: #4a5568;
+    line-height: 1.5;
+  }
+  label {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ruled);
+    margin-bottom: 6px;
+  }
+  input[type="email"] {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    border: 2px solid var(--ink);
+    background: #fffdf7;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  input[type="email"]:focus {
+    outline: none;
+    border-color: var(--ruled);
+  }
+  button {
+    width: 100%;
+    padding: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--stamp);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  button:active { transform: translate(2px, 2px); }
+  button:disabled { opacity: 0.6; cursor: default; }
+  .status {
+    margin-top: 16px;
+    font-size: 14px;
+    padding: 12px;
+    border-left: 3px solid var(--ruled);
+    background: rgba(47,93,140,0.08);
+    display: none;
+    line-height: 1.5;
+  }
+  .status.show { display: block; }
+  .status.error {
+    border-left-color: var(--stamp);
+    background: rgba(163,38,56,0.08);
+  }
+  .status.success {
+    border-left-color: #2f7d4f;
+    background: rgba(47,125,79,0.08);
+  }
+  .stamp-mark {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid var(--stamp);
+    color: var(--stamp);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-align: center;
+    transform: rotate(12deg);
+    background: var(--paper);
+    line-height: 1.2;
+  }
+</style>
+</head>
+<body>
 
+<div class="card">
+  <div class="stamp-mark">PRO<br>2026</div>
+  <div class="rubrika">Rubrika — Pristup</div>
+  <h1>Slobodnjak Pro</h1>
+  <p class="sub">Unesite email da dobijete link za prijavu. Nema lozinke — proverite inbox nakon slanja.</p>
+
+  <form id="loginForm">
+    <label for="email">Email adresa</label>
+    <input type="email" id="email" placeholder="vas@email.com" required>
+    <button type="submit" id="submitBtn">Pošalji link za prijavu</button>
+  </form>
+
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://dmrejgihlcxobcztbwgb.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtcmVqZ2lobGN4b2JjenRid2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODM5NTUsImV4cCI6MjA5OTQ1OTk1NX0.IrVZbozjziiOUpgUAQIGtvGW54O3UkJk2HD03D3CWQs';
+
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const form = document.getElementById('loginForm');
+  const statusEl = document.getElementById('status');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function showStatus(message, type) {
+    statusEl.textContent = message;
+    statusEl.className = 'status show ' + type;
+  }
+
+  // Ako je korisnik već ulogovan, preusmeri ga na dashboard
+  supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      window.location.href = 'dashboard.html';
+    }
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    if (!email) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Šaljem...';
+
+    const { error } = await supabaseClient.auth.signInWithOtp({
+      email: email,
+      options: {
+        emailRedirectTo: window.location.origin + window.location.pathname.replace('login.html', 'dashboard.html')
+      }
+    });
+
+    if (error) {
+      showStatus('Greška: ' + error.message, 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Pošalji link za prijavu';
+    } else {
+      showStatus('Link je poslat na ' + email + '. Proverite inbox (i spam folder) i kliknite na link.', 'success');
+      submitBtn.textContent = 'Link poslat ✓';
+    }
+  });
+
+  // Ako se korisnik vrati kroz magic link, Supabase automatski obradi sesiju
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN') {
+      window.location.href = 'dashboard.html';
+    }
+  });
+</script>
+
+</body>
+</html>

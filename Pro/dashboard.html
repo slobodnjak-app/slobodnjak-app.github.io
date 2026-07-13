@@ -224,6 +224,16 @@
   </div>
 
   <div class="card">
+    <div class="rubrika">Rubrika — Pregled godine</div>
+    <h2>Prihod po kvartalima</h2>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+      <label style="margin:0;">Godina</label>
+      <select id="yearSelect" style="width:auto; padding:6px 10px;"></select>
+    </div>
+    <canvas id="quarterChart" width="600" height="220" style="width:100%; border:1px solid #d8cfae;"></canvas>
+  </div>
+
+  <div class="card">
     <div class="rubrika">Rubrika — Istorija</div>
     <h2>Svi uneti prihodi</h2>
     <table id="historyTable">
@@ -344,8 +354,35 @@
   });
 
   let allPrihodi = [];
+  let rates = { EUR: null, USD: null }; // koliko RSD za 1 EUR / 1 USD
+  let ratesLoadedAt = null;
+
+  async function loadRates(){
+    try {
+      const res = await fetch('https://api.frankfurter.app/latest?from=RSD&to=EUR,USD');
+      const data = await res.json();
+      // API vraća koliko EUR/USD za 1 RSD, pa okrećemo račun
+      rates.EUR = 1 / data.rates.EUR;
+      rates.USD = 1 / data.rates.USD;
+      ratesLoadedAt = new Date();
+    } catch (e){
+      console.warn('Nije uspelo učitavanje kursa, koristim procenu:', e);
+      // Gruba rezervna procena ako API ne odgovori (bolje nego 0)
+      rates.EUR = rates.EUR || 117;
+      rates.USD = rates.USD || 108;
+    }
+  }
+
+  function toRSD(iznos, valuta){
+    const n = Number(iznos);
+    if (valuta === 'RSD') return n;
+    if (valuta === 'EUR') return n * (rates.EUR || 117);
+    if (valuta === 'USD') return n * (rates.USD || 108);
+    return n;
+  }
 
   async function loadAll(){
+    await loadRates();
     const { data, error } = await supabaseClient
       .from('prihodi')
       .select('*')
@@ -355,6 +392,8 @@
     renderHistory();
     renderQuarter();
     renderLimit();
+    populateYearSelect();
+    renderChart();
   }
 
   function renderHistory(){
@@ -382,14 +421,14 @@
     document.getElementById('quarterTitle').textContent = `Kvartal ${kvartal}, ${godina}`;
 
     const suma = allPrihodi
-      .filter(p => p.kvartal === kvartal && p.godina === godina && p.valuta === 'RSD')
-      .reduce((s, p) => s + Number(p.iznos), 0);
+      .filter(p => p.kvartal === kvartal && p.godina === godina)
+      .reduce((s, p) => s + toRSD(p.iznos, p.valuta), 0);
 
     const content = document.getElementById('quarterContent');
     const pdfBtn = document.getElementById('pdfBtn');
 
     if (suma <= 0){
-      content.innerHTML = '<p class="empty-note">Nema unetih RSD prihoda za tekući kvartal. Napomena: obračun trenutno prikazuje samo RSD unose — konverzija deviznih iznosa po kursu NBS dolazi u sledećoj verziji.</p>';
+      content.innerHTML = '<p class="empty-note">Nema unetih prihoda za tekući kvartal.</p>';
       pdfBtn.style.display = 'none';
       currentQuarterData = null;
       return;
@@ -403,8 +442,11 @@
     currentQuarterData = { kvartal, godina, suma, a, b, boljiA, razlika };
     pdfBtn.style.display = 'block';
 
+    const kursNapomena = (rates.EUR) ? `<p class="empty-note" style="font-size:11px;">Devizni iznosi preračunati po kursu: 1 EUR ≈ ${Math.round(rates.EUR)} RSD, 1 USD ≈ ${Math.round(rates.USD)} RSD (ECB kurs, ne zvanični NBS — okvirna vrednost).</p>` : '';
+
     content.innerHTML = `
-      <p class="empty-note">Ukupan prihod za kvartal: <b>${fmt(suma)}</b></p>
+      <p class="empty-note">Ukupan prihod za kvartal (svi u RSD ekvivalentu): <b>${fmt(suma)}</b></p>
+      ${kursNapomena}
       <div class="quarter-grid">
         <div class="model-box ${boljiA ? 'winner' : ''}">
           <h3>MODEL A</h3>
@@ -430,8 +472,8 @@
   function renderLimit(){
     const godina = new Date().getFullYear();
     const suma = allPrihodi
-      .filter(p => p.godina === godina && p.valuta === 'RSD')
-      .reduce((s, p) => s + Number(p.iznos), 0);
+      .filter(p => p.godina === godina)
+      .reduce((s, p) => s + toRSD(p.iznos, p.valuta), 0);
 
     const pct = Math.min(100, (suma / PAUSAL_LIMIT) * 100);
     const bar = document.getElementById('limitBar');
@@ -441,53 +483,167 @@
       `${fmt(suma)} od ${fmt(PAUSAL_LIMIT)} (${pct.toFixed(1)}%) — godina ${godina}`;
   }
 
-  document.getElementById('pdfBtn').addEventListener('click', () => {
+  // Font sa punom podrškom za č/ć/đ/š/ž (DejaVu Sans, javno dostupan preko jsDelivr CDN-a)
+  let fontReady = false;
+  let fontLoadAttempted = false;
+
+  function bufferToBase64(buffer){
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const chunk = 8192;
+    for (let i = 0; i < bytes.length; i += chunk){
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+  }
+
+  async function ensureFont(doc){
+    if (fontLoadAttempted) return fontReady;
+    fontLoadAttempted = true;
+    try {
+      const [regRes, boldRes] = await Promise.all([
+        fetch('https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans.ttf'),
+        fetch('https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans-Bold.ttf')
+      ]);
+      if (!regRes.ok || !boldRes.ok) throw new Error('font fetch failed');
+      const regB64 = bufferToBase64(await regRes.arrayBuffer());
+      const boldB64 = bufferToBase64(await boldRes.arrayBuffer());
+      doc.addFileToVFS('DejaVuSans.ttf', regB64);
+      doc.addFont('DejaVuSans.ttf', 'DejaVuSans', 'normal');
+      doc.addFileToVFS('DejaVuSans-Bold.ttf', boldB64);
+      doc.addFont('DejaVuSans-Bold.ttf', 'DejaVuSans', 'bold');
+      fontReady = true;
+    } catch (e){
+      console.warn('Nije uspelo učitavanje fonta sa dijakriticima, koristim fallback:', e);
+      fontReady = false;
+    }
+    return fontReady;
+  }
+
+  // Ako font ne uspe da se učita (npr. nema interneta), zamenjujemo č/ć/đ/š/ž ASCII slovima da PDF ne bude nečitljiv
+  function safeText(str){
+    if (fontReady) return str;
+    return str
+      .replace(/č/g,'c').replace(/ć/g,'c').replace(/đ/g,'dj').replace(/š/g,'s').replace(/ž/g,'z')
+      .replace(/Č/g,'C').replace(/Ć/g,'C').replace(/Đ/g,'Dj').replace(/Š/g,'S').replace(/Ž/g,'Z');
+  }
+
+  function setPdfFont(doc, weight){
+    if (fontReady) doc.setFont('DejaVuSans', weight);
+    else doc.setFont('helvetica', weight);
+  }
+
+  document.getElementById('pdfBtn').addEventListener('click', async () => {
     if (!currentQuarterData) return;
+    const pdfBtn = document.getElementById('pdfBtn');
+    pdfBtn.disabled = true;
+    pdfBtn.textContent = 'Pripremam PDF...';
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    await ensureFont(doc);
+
     const d = currentQuarterData;
     const model = d.boljiA ? d.a : d.b;
-    const modelNaziv = d.boljiA ? 'Model A (viši neoporezivi prag)' : 'Model B (niža poreska stopa)';
+    const modelNaziv = safeText(d.boljiA ? 'Model A (viši neoporezivi prag)' : 'Model B (niža poreska stopa)');
 
     let y = 20;
-    doc.setFont('helvetica', 'bold');
+    setPdfFont(doc, 'bold');
     doc.setFontSize(16);
-    doc.text('Slobodnjak Pro — Kvartalni izveštaj', 20, y);
+    doc.text(safeText('Slobodnjak Pro — Kvartalni izveštaj'), 20, y);
     y += 10;
     doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
+    setPdfFont(doc, 'normal');
     doc.text(`Kvartal ${d.kvartal}, ${d.godina}`, 20, y);
     y += 6;
     doc.text(`Generisano: ${new Date().toLocaleDateString('sr-RS')}`, 20, y);
     y += 14;
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Ukupan prihod (RSD unosi)', 20, y);
+    setPdfFont(doc, 'bold');
+    doc.text(safeText('Ukupan prihod (RSD unosi)'), 20, y);
     doc.text(fmt(d.suma), 140, y);
     y += 10;
 
-    doc.text('Preporučeni model', 20, y);
+    doc.text(safeText('Preporučeni model'), 20, y);
     doc.text(modelNaziv, 140, y);
     y += 10;
 
-    doc.setFont('helvetica', 'normal');
-    doc.text('Oporeziva osnovica', 20, y); doc.text(fmt(model.osnovica), 140, y); y += 7;
+    setPdfFont(doc, 'normal');
+    doc.text(safeText('Oporeziva osnovica'), 20, y); doc.text(fmt(model.osnovica), 140, y); y += 7;
     doc.text('Porez', 20, y); doc.text(fmt(model.porez), 140, y); y += 7;
     doc.text('PIO doprinos', 20, y); doc.text(fmt(model.pio), 140, y); y += 7;
-    doc.text('Zdravstveni doprinos', 20, y); doc.text(fmt(model.zdravstvo), 140, y); y += 10;
+    doc.text(safeText('Zdravstveni doprinos'), 20, y); doc.text(fmt(model.zdravstvo), 140, y); y += 10;
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Ukupno dažbine', 20, y); doc.text(fmt(model.ukupno), 140, y); y += 7;
-    doc.text('Neto (ostaje ti)', 20, y); doc.text(fmt(model.neto), 140, y); y += 14;
+    setPdfFont(doc, 'bold');
+    doc.text(safeText('Ukupno dažbine'), 20, y); doc.text(fmt(model.ukupno), 140, y); y += 7;
+    doc.text(safeText('Neto (ostaje ti)'), 20, y); doc.text(fmt(model.neto), 140, y); y += 14;
 
-    doc.setFont('helvetica', 'normal');
+    setPdfFont(doc, 'normal');
     doc.setFontSize(9);
-    const napomena = 'Ovaj izveštaj je informativnog karaktera i ne predstavlja poreski savet. Za konačnu prijavu proveri zvanični portal frilenseri.purs.gov.rs ili se konsultuj sa knjigovođom.';
+    const napomena = safeText('Ovaj izveštaj je informativnog karaktera i ne predstavlja poreski savet. Za konačnu prijavu proveri zvanični portal frilenseri.purs.gov.rs ili se konsultuj sa knjigovođom.');
     const lines = doc.splitTextToSize(napomena, 170);
     doc.text(lines, 20, y);
 
     doc.save(`slobodnjak-pro-izvestaj-K${d.kvartal}-${d.godina}.pdf`);
+
+    pdfBtn.disabled = false;
+    pdfBtn.textContent = 'Preuzmi PDF izveštaj za ovaj kvartal';
   });
+
+  function populateYearSelect(){
+    const sel = document.getElementById('yearSelect');
+    const years = [...new Set(allPrihodi.map(p => p.godina))].sort((a,b) => b - a);
+    const currentYear = new Date().getFullYear();
+    if (!years.includes(currentYear)) years.unshift(currentYear);
+
+    const prevValue = sel.value;
+    sel.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+    if (prevValue && years.includes(Number(prevValue))) sel.value = prevValue;
+    else sel.value = currentYear;
+  }
+
+  document.getElementById('yearSelect').addEventListener('change', renderChart);
+
+  function renderChart(){
+    const sel = document.getElementById('yearSelect');
+    const godina = Number(sel.value || new Date().getFullYear());
+    const canvas = document.getElementById('quarterChart');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const totals = [1,2,3,4].map(kv =>
+      allPrihodi
+        .filter(p => p.godina === godina && p.kvartal === kv)
+        .reduce((s, p) => s + toRSD(p.iznos, p.valuta), 0)
+    );
+
+    const max = Math.max(...totals, 1);
+    const barW = 80, gap = 40, baseY = H - 30, top = 20;
+    const startX = (W - (barW * 4 + gap * 3)) / 2;
+
+    ctx.strokeStyle = '#1E2A38';
+    ctx.beginPath();
+    ctx.moveTo(20, baseY);
+    ctx.lineTo(W - 20, baseY);
+    ctx.stroke();
+
+    totals.forEach((val, i) => {
+      const h = (val / max) * (baseY - top);
+      const x = startX + i * (barW + gap);
+      const y = baseY - h;
+      ctx.fillStyle = '#2F5D8C';
+      ctx.fillRect(x, y, barW, h);
+      ctx.fillStyle = '#1E2A38';
+      ctx.font = '12px IBM Plex Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('K' + (i + 1), x + barW / 2, baseY + 16);
+      if (val > 0){
+        ctx.font = '10px IBM Plex Mono, monospace';
+        ctx.fillText(Math.round(val / 1000) + 'k', x + barW / 2, y - 6);
+      }
+    });
+  }
 
   checkAuth();
 </script>

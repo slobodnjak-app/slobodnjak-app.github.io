@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slobodnjak Pro — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --paper: #F5EFDD;
+    --ink: #1E2A38;
+    --stamp: #A32638;
+    --ruled: #2F5D8C;
+    --good: #2f7d4f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--paper);
+    background-image: linear-gradient(var(--ruled) 1px, transparent 1px);
+    background-size: 100% 34px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink);
+    padding: 16px;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 720px;
+    margin: 0 auto 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ink);
+  }
+  header .brand {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+  }
+  header .brand span { color: var(--stamp); }
+  #logoutBtn {
+    background: none;
+    border: 1px solid var(--ink);
+    padding: 6px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  .card {
+    background: #fffdf7;
+    border: 2px solid var(--ink);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  .rubrika {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--stamp);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  h2 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 18px;
+    margin: 0 0 14px;
+  }
+  label {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ruled);
+    margin-bottom: 4px;
+    margin-top: 12px;
+  }
+  input, select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    border: 2px solid var(--ink);
+    background: #fffdf7;
+    color: var(--ink);
+  }
+  .row { display: flex; gap: 10px; }
+  .row > div { flex: 1; }
+  button.primary {
+    margin-top: 16px;
+    width: 100%;
+    padding: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--stamp);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    cursor: pointer;
+  }
+  button.primary:active { transform: translate(2px, 2px); }
+  .toggle-row { display: flex; gap: 8px; margin-top: 6px; }
+  .toggle-btn {
+    flex: 1;
+    padding: 8px;
+    font-size: 12px;
+    border: 2px solid var(--ink);
+    background: #fffdf7;
+    cursor: pointer;
+  }
+  .toggle-btn.active { background: var(--ruled); color: var(--paper); }
+  .quarter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .model-box {
+    border: 2px solid var(--ink);
+    padding: 12px;
+    position: relative;
+  }
+  .model-box.winner { border-color: var(--good); background: rgba(47,125,79,0.06); }
+  .model-box h3 { margin: 0 0 8px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+  .model-box .line { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; color: #4a5568; }
+  .model-box .neto { margin-top: 8px; font-weight: 600; font-size: 15px; }
+  .verdict {
+    margin-top: 12px;
+    padding: 10px;
+    border-left: 3px solid var(--good);
+    background: rgba(47,125,79,0.08);
+    font-size: 13px;
+  }
+  .limit-bar-track {
+    background: #e5ddc8;
+    height: 10px;
+    border: 1px solid var(--ink);
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .limit-bar-fill { height: 100%; background: var(--ruled); }
+  .limit-bar-fill.warn { background: var(--stamp); }
+  .limit-label { font-size: 12px; color: #4a5568; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #d8cfae; }
+  th { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; color: var(--ruled); }
+  .empty-note { font-size: 13px; color: #6b7280; padding: 8px 0; }
+  .status { display:none; margin-top:10px; font-size:13px; padding:10px; border-left:3px solid var(--stamp); background:rgba(163,38,56,0.08); }
+  .status.show { display:block; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">SLOBODNJAK <span>PRO</span></div>
+  <button id="logoutBtn">Odjavi se</button>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="rubrika">Rubrika — Unos</div>
+    <h2>Novi prihod</h2>
+    <div class="row">
+      <div>
+        <label>Datum prijema</label>
+        <input type="date" id="datum">
+      </div>
+      <div>
+        <label>Iznos</label>
+        <input type="number" id="iznos" placeholder="npr. 150000" inputmode="decimal">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Valuta</label>
+        <select id="valuta">
+          <option value="RSD">RSD</option>
+          <option value="EUR">EUR</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+      <div>
+        <label>Izvor</label>
+        <input type="text" id="izvor" placeholder="npr. Upwork, PayPal...">
+      </div>
+    </div>
+    <button class="primary" id="addBtn">Sačuvaj prihod</button>
+    <div class="status" id="addStatus"></div>
+  </div>
+
+  <div class="card">
+    <div class="rubrika">Rubrika — Status</div>
+    <h2 id="quarterTitle">Tekući kvartal</h2>
+
+    <label>Da li si već zdravstveno osiguran po drugom osnovu?</label>
+    <div class="toggle-row" id="osiguranje-toggle">
+      <button type="button" class="toggle-btn active" data-val="ne">Nisam</button>
+      <button type="button" class="toggle-btn" data-val="da">Jesam</button>
+    </div>
+
+    <div id="quarterContent">
+      <p class="empty-note">Učitavam podatke...</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="rubrika">Rubrika — Praćenje limita</div>
+    <h2>Godišnji prag</h2>
+    <div class="limit-label" id="limitLabel">Učitavam...</div>
+    <div class="limit-bar-track"><div class="limit-bar-fill" id="limitBar" style="width:0%"></div></div>
+    <p class="empty-note" style="margin-top:8px;">Paušalni prag: 6.000.000 RSD/god. PDV prag: 8.000.000 RSD/12 meseci. Ovo je informativni prikaz na osnovu unetih prihoda, ne zamenjuje zvaničnu evidenciju.</p>
+  </div>
+
+  <div class="card">
+    <div class="rubrika">Rubrika — Istorija</div>
+    <h2>Svi uneti prihodi</h2>
+    <table id="historyTable">
+      <thead>
+        <tr><th>Datum</th><th>Iznos</th><th>Izvor</th><th>Kv.</th></tr>
+      </thead>
+      <tbody id="historyBody"></tbody>
+    </table>
+    <p class="empty-note" id="historyEmpty" style="display:none;">Još nema unetih prihoda.</p>
+  </div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://dmrejgihlcxobcztbwgb.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtcmVqZ2lobGN4b2JjenRid2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODM5NTUsImV4cCI6MjA5OTQ1OTk1NX0.IrVZbozjziiOUpgUAQIGtvGW54O3UkJk2HD03D3CWQs';
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Ista logika kao u besplatnom Alat 01 (Model A/B kalkulator) — ažurirano: jul 2026
+  const PARAMS = {
+    A: { trosakFiksni: 110647, porez: 0.20, pio: 0.24, zdravstvoStopa: 0.103, zdravstvoMin: 4789 },
+    B: { trosakFiksni: 66733, trosakProcenat: 0.34, porez: 0.10, pio: 0.24, pioMin: 25218, zdravstvoStopa: 0.103, zdravstvoMin: 4789 }
+  };
+  const PAUSAL_LIMIT = 6000000;
+
+  let osiguran = false;
+  let currentUser = null;
+
+  const fmt = n => Math.round(n).toLocaleString('sr-RS') + ' RSD';
+
+  function calculateModelA(prihod){
+    const p = PARAMS.A;
+    const osnovica = Math.max(0, prihod - p.trosakFiksni);
+    const porez = osnovica * p.porez;
+    const pio = osnovica * p.pio;
+    let zdravstvo = 0;
+    if (prihod > 0 && !osiguran) zdravstvo = Math.max(osnovica * p.zdravstvoStopa, p.zdravstvoMin);
+    const ukupno = porez + pio + zdravstvo;
+    return { osnovica, porez, pio, zdravstvo, ukupno, neto: prihod - ukupno };
+  }
+
+  function calculateModelB(prihod){
+    const p = PARAMS.B;
+    const trosak = p.trosakFiksni + prihod * p.trosakProcenat;
+    const osnovica = Math.max(0, prihod - trosak);
+    const porez = osnovica * p.porez;
+    let pio = 0;
+    if (prihod > 0) pio = Math.max(osnovica * p.pio, p.pioMin);
+    let zdravstvo = 0;
+    if (prihod > 0 && !osiguran) zdravstvo = Math.max(osnovica * p.zdravstvoStopa, p.zdravstvoMin);
+    const ukupno = porez + pio + zdravstvo;
+    return { osnovica, porez, pio, zdravstvo, ukupno, neto: prihod - ukupno };
+  }
+
+  function getKvartal(dateStr){
+    const m = new Date(dateStr).getMonth() + 1;
+    return Math.ceil(m / 3);
+  }
+
+  // --- Auth guard ---
+  async function checkAuth(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session){
+      window.location.href = 'login.html';
+      return;
+    }
+    currentUser = session.user;
+    loadAll();
+  }
+
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = 'login.html';
+  });
+
+  // --- Osiguranje toggle ---
+  document.querySelectorAll('#osiguranje-toggle .toggle-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      document.querySelectorAll('#osiguranje-toggle .toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      osiguran = btn.dataset.val === 'da';
+      await supabaseClient.from('podesavanja').upsert({ user_id: currentUser.id, model: 'A' }, { onConflict: 'user_id' });
+      renderQuarter();
+    });
+  });
+
+  // --- Dodavanje prihoda ---
+  document.getElementById('addBtn').addEventListener('click', async () => {
+    const datum = document.getElementById('datum').value;
+    const iznos = parseFloat(document.getElementById('iznos').value);
+    const valuta = document.getElementById('valuta').value;
+    const izvor = document.getElementById('izvor').value.trim();
+    const statusEl = document.getElementById('addStatus');
+
+    if (!datum || !iznos || iznos <= 0){
+      statusEl.textContent = 'Unesi datum i validan iznos.';
+      statusEl.className = 'status show';
+      return;
+    }
+
+    const kvartal = getKvartal(datum);
+    const godina = new Date(datum).getFullYear();
+
+    const { error } = await supabaseClient.from('prihodi').insert({
+      user_id: currentUser.id,
+      datum, iznos, valuta, izvor, kvartal, godina
+    });
+
+    if (error){
+      statusEl.textContent = 'Greška: ' + error.message;
+      statusEl.className = 'status show';
+    } else {
+      statusEl.className = 'status';
+      document.getElementById('iznos').value = '';
+      document.getElementById('izvor').value = '';
+      loadAll();
+    }
+  });
+
+  let allPrihodi = [];
+
+  async function loadAll(){
+    const { data, error } = await supabaseClient
+      .from('prihodi')
+      .select('*')
+      .order('datum', { ascending: false });
+
+    if (!error && data) allPrihodi = data;
+    renderHistory();
+    renderQuarter();
+    renderLimit();
+  }
+
+  function renderHistory(){
+    const body = document.getElementById('historyBody');
+    const empty = document.getElementById('historyEmpty');
+    body.innerHTML = '';
+    if (allPrihodi.length === 0){
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    allPrihodi.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${p.datum}</td><td>${Math.round(p.iznos).toLocaleString('sr-RS')} ${p.valuta}</td><td>${p.izvor || '—'}</td><td>K${p.kvartal}</td>`;
+      body.appendChild(tr);
+    });
+  }
+
+  function renderQuarter(){
+    const now = new Date();
+    const kvartal = getKvartal(now.toISOString().slice(0,10));
+    const godina = now.getFullYear();
+    document.getElementById('quarterTitle').textContent = `Kvartal ${kvartal}, ${godina}`;
+
+    const suma = allPrihodi
+      .filter(p => p.kvartal === kvartal && p.godina === godina && p.valuta === 'RSD')
+      .reduce((s, p) => s + Number(p.iznos), 0);
+
+    const content = document.getElementById('quarterContent');
+
+    if (suma <= 0){
+      content.innerHTML = '<p class="empty-note">Nema unetih RSD prihoda za tekući kvartal. Napomena: obračun trenutno prikazuje samo RSD unose — konverzija deviznih iznosa po kursu NBS dolazi u sledećoj verziji.</p>';
+      return;
+    }
+
+    const a = calculateModelA(suma);
+    const b = calculateModelB(suma);
+    const boljiA = a.ukupno <= b.ukupno;
+    const razlika = Math.abs(a.ukupno - b.ukupno);
+
+    content.innerHTML = `
+      <p class="empty-note">Ukupan prihod za kvartal: <b>${fmt(suma)}</b></p>
+      <div class="quarter-grid">
+        <div class="model-box ${boljiA ? 'winner' : ''}">
+          <h3>MODEL A</h3>
+          <div class="line"><span>Osnovica</span><span>${fmt(a.osnovica)}</span></div>
+          <div class="line"><span>Porez</span><span>${fmt(a.porez)}</span></div>
+          <div class="line"><span>PIO</span><span>${fmt(a.pio)}</span></div>
+          <div class="line"><span>Zdravstvo</span><span>${fmt(a.zdravstvo)}</span></div>
+          <div class="neto">Neto: ${fmt(a.neto)}</div>
+        </div>
+        <div class="model-box ${!boljiA ? 'winner' : ''}">
+          <h3>MODEL B</h3>
+          <div class="line"><span>Osnovica</span><span>${fmt(b.osnovica)}</span></div>
+          <div class="line"><span>Porez</span><span>${fmt(b.porez)}</span></div>
+          <div class="line"><span>PIO</span><span>${fmt(b.pio)}</span></div>
+          <div class="line"><span>Zdravstvo</span><span>${fmt(b.zdravstvo)}</span></div>
+          <div class="neto">Neto: ${fmt(b.neto)}</div>
+        </div>
+      </div>
+      <div class="verdict">Model ${boljiA ? 'A' : 'B'} ti donosi ${fmt(razlika)} manje dažbina ovaj kvartal.</div>
+    `;
+  }
+
+  function renderLimit(){
+    const godina = new Date().getFullYear();
+    const suma = allPrihodi
+      .filter(p => p.godina === godina && p.valuta === 'RSD')
+      .reduce((s, p) => s + Number(p.iznos), 0);
+
+    const pct = Math.min(100, (suma / PAUSAL_LIMIT) * 100);
+    const bar = document.getElementById('limitBar');
+    bar.style.width = pct + '%';
+    bar.className = 'limit-bar-fill' + (pct > 80 ? ' warn' : '');
+    document.getElementById('limitLabel').textContent =
+      `${fmt(suma)} od ${fmt(PAUSAL_LIMIT)} (${pct.toFixed(1)}%) — godina ${godina}`;
+  }
+
+  checkAuth();
+</script>
+
+</body>
+</html>

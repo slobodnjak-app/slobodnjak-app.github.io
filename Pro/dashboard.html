@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <style>
   :root {
     --paper: #F5EFDD;
@@ -211,6 +212,7 @@
     <div id="quarterContent">
       <p class="empty-note">Učitavam podatke...</p>
     </div>
+    <button class="primary" id="pdfBtn" style="display:none;">Preuzmi PDF izveštaj za ovaj kvartal</button>
   </div>
 
   <div class="card">
@@ -371,6 +373,8 @@
     });
   }
 
+  let currentQuarterData = null;
+
   function renderQuarter(){
     const now = new Date();
     const kvartal = getKvartal(now.toISOString().slice(0,10));
@@ -382,9 +386,12 @@
       .reduce((s, p) => s + Number(p.iznos), 0);
 
     const content = document.getElementById('quarterContent');
+    const pdfBtn = document.getElementById('pdfBtn');
 
     if (suma <= 0){
       content.innerHTML = '<p class="empty-note">Nema unetih RSD prihoda za tekući kvartal. Napomena: obračun trenutno prikazuje samo RSD unose — konverzija deviznih iznosa po kursu NBS dolazi u sledećoj verziji.</p>';
+      pdfBtn.style.display = 'none';
+      currentQuarterData = null;
       return;
     }
 
@@ -392,6 +399,9 @@
     const b = calculateModelB(suma);
     const boljiA = a.ukupno <= b.ukupno;
     const razlika = Math.abs(a.ukupno - b.ukupno);
+
+    currentQuarterData = { kvartal, godina, suma, a, b, boljiA, razlika };
+    pdfBtn.style.display = 'block';
 
     content.innerHTML = `
       <p class="empty-note">Ukupan prihod za kvartal: <b>${fmt(suma)}</b></p>
@@ -430,6 +440,54 @@
     document.getElementById('limitLabel').textContent =
       `${fmt(suma)} od ${fmt(PAUSAL_LIMIT)} (${pct.toFixed(1)}%) — godina ${godina}`;
   }
+
+  document.getElementById('pdfBtn').addEventListener('click', () => {
+    if (!currentQuarterData) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const d = currentQuarterData;
+    const model = d.boljiA ? d.a : d.b;
+    const modelNaziv = d.boljiA ? 'Model A (viši neoporezivi prag)' : 'Model B (niža poreska stopa)';
+
+    let y = 20;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('Slobodnjak Pro — Kvartalni izveštaj', 20, y);
+    y += 10;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Kvartal ${d.kvartal}, ${d.godina}`, 20, y);
+    y += 6;
+    doc.text(`Generisano: ${new Date().toLocaleDateString('sr-RS')}`, 20, y);
+    y += 14;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Ukupan prihod (RSD unosi)', 20, y);
+    doc.text(fmt(d.suma), 140, y);
+    y += 10;
+
+    doc.text('Preporučeni model', 20, y);
+    doc.text(modelNaziv, 140, y);
+    y += 10;
+
+    doc.setFont('helvetica', 'normal');
+    doc.text('Oporeziva osnovica', 20, y); doc.text(fmt(model.osnovica), 140, y); y += 7;
+    doc.text('Porez', 20, y); doc.text(fmt(model.porez), 140, y); y += 7;
+    doc.text('PIO doprinos', 20, y); doc.text(fmt(model.pio), 140, y); y += 7;
+    doc.text('Zdravstveni doprinos', 20, y); doc.text(fmt(model.zdravstvo), 140, y); y += 10;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Ukupno dažbine', 20, y); doc.text(fmt(model.ukupno), 140, y); y += 7;
+    doc.text('Neto (ostaje ti)', 20, y); doc.text(fmt(model.neto), 140, y); y += 14;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    const napomena = 'Ovaj izveštaj je informativnog karaktera i ne predstavlja poreski savet. Za konačnu prijavu proveri zvanični portal frilenseri.purs.gov.rs ili se konsultuj sa knjigovođom.';
+    const lines = doc.splitTextToSize(napomena, 170);
+    doc.text(lines, 20, y);
+
+    doc.save(`slobodnjak-pro-izvestaj-K${d.kvartal}-${d.godina}.pdf`);
+  });
 
   checkAuth();
 </script>

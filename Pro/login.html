@@ -192,7 +192,8 @@
     });
 
     if (error) {
-      showStatus('Greška: ' + error.message, 'error');
+      const detalj = error.message || error.error_description || error.msg || JSON.stringify(error) || 'nepoznata greška';
+      showStatus('Greška (' + (error.status || '?') + '): ' + detalj, 'error');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Pošalji link za prijavu';
     } else {

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slobodnjak Pro — Politika privatnosti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F5EFDD;
+    --ink: #1E2A38;
+    --stamp: #A32638;
+    --ruled: #2F5D8C;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    background-image: linear-gradient(var(--ruled) 1px, transparent 1px);
+    background-size: 100% 34px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink);
+    padding: 24px 16px 60px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  .card {
+    background: #fffdf7;
+    border: 2px solid var(--ink);
+    padding: 28px 24px;
+    box-shadow: 5px 5px 0 var(--ink);
+  }
+  .rubrika {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--stamp);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 22px;
+    margin: 0 0 6px;
+  }
+  .datum { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
+  h2 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    color: var(--ruled);
+    margin: 28px 0 10px;
+    border-bottom: 1px solid #d8cfae;
+    padding-bottom: 6px;
+  }
+  p, li { font-size: 14.5px; }
+  ul { padding-left: 20px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #d8cfae; vertical-align: top; }
+  th { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--ruled); }
+  .placeholder {
+    background: rgba(163,38,56,0.08);
+    border-left: 3px solid var(--stamp);
+    padding: 8px 10px;
+    font-size: 13px;
+    margin: 4px 0;
+  }
+  a { color: var(--ruled); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="card">
+    <div class="rubrika">Rubrika — Pravna dokumenta</div>
+    <h1>Politika privatnosti — Slobodnjak Pro</h1>
+    <div class="datum">Poslednja izmena: 14. jul 2026.</div>
+
+    <p>Ova politika privatnosti objašnjava koje podatke Slobodnjak Pro prikuplja, zašto, i kako ih štitimo. Korišćenjem servisa Slobodnjak Pro prihvataš uslove opisane u ovom dokumentu.</p>
+
+    <h2>1. Ko je rukovalac podataka</h2>
+    <p>Anel Izberović<br>Tutin, 36320, Srbija<br>Kontakt: slobodnjak.app@gmail.com</p>
+
+    <h2>2. Koje podatke prikupljamo</h2>
+    <table>
+      <tr><th>Podatak</th><th>Svrha</th></tr>
+      <tr><td>Email adresa</td><td>Prijava na nalog (magic link), slanje podsetnika pre poreskog roka</td></tr>
+      <tr><td>Uneti prihodi (datum, iznos, valuta, izvor)</td><td>Obračun poreza/doprinosa (Model A/B) i generisanje kvartalnih izveštaja</td></tr>
+      <tr><td>Podešavanja naloga (izabrani model, opština, godina registracije)</td><td>Personalizacija obračuna</td></tr>
+    </table>
+    <p>Ne prikupljamo ime, adresu, broj telefona, niti bilo koje podatke van gore navedenih, osim ako ih sam korisnik doda u polje "izvor prihoda".</p>
+
+    <h2>3. Ko ima pristup podacima (obrađivači)</h2>
+    <p>Podaci se čuvaju i obrađuju preko sledećih trećih strana:</p>
+    <ul>
+      <li><b>Supabase</b> (hosting baze podataka, autentifikacija) — serveri u EU (Frankfurt)</li>
+      <li><b>Brevo</b> (slanje email podsetnika)</li>
+    </ul>
+    <p>Ne prodajemo, ne iznajmljujemo i ne delimo podatke sa oglašivačima ili trećim stranama u marketinške svrhe.</p>
+
+    <h2>4. Koliko dugo čuvamo podatke</h2>
+    <p>Podaci se čuvaju dok korisnik ne zatraži brisanje naloga. Nakon brisanja, podaci se trajno uklanjaju iz baze u razumnom roku (do 30 dana).</p>
+
+    <h2>5. Prava korisnika</h2>
+    <p>U skladu sa Zakonom o zaštiti podataka o ličnosti Republike Srbije, imaš pravo da:</p>
+    <ul>
+      <li>zatražiš uvid u podatke koje čuvamo o tebi</li>
+      <li>zatražiš ispravku netačnih podataka</li>
+      <li>zatražiš brisanje svojih podataka i naloga</li>
+      <li>zatražiš izvoz svojih podataka (PDF izveštaji su već dostupni direktno u aplikaciji)</li>
+      <li>povučeš pristanak na obradu u bilo kom trenutku</li>
+    </ul>
+    <p>Zahtev možeš poslati na: <span class="placeholder">slobodnjak.app@gmail.com</span></p>
+
+    <h2>6. Bezbednost podataka</h2>
+    <p>Pristup podacima je ograničen tako da svaki korisnik vidi isključivo svoje unose (Row Level Security). Lozinke se ne koriste — prijava je isključivo putem email magic link-a.</p>
+
+    <h2>7. Kolačići (cookies)</h2>
+    <p>Slobodnjak Pro koristi isključivo tehnički neophodne kolačiće/lokalno čuvanje sesije za prijavu (Supabase Auth token). Ne koristimo analitičke ili marketinške kolačiće trećih strana.</p>
+
+    <h2>8. Izmene ove politike</h2>
+    <p>Politika privatnosti se može povremeno ažurirati. Datum poslednje izmene je naveden na vrhu stranice. Značajne izmene ćemo najaviti putem email-a ili obaveštenja na sajtu.</p>
+
+    <h2>9. Kontakt</h2>
+    <p>Za sva pitanja u vezi sa privatnošću i podacima: <span class="placeholder">slobodnjak.app@gmail.com</span></p>
+  </div>
+</div>
+
+</body>
+</html>

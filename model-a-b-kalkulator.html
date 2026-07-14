@@ -260,6 +260,43 @@
   }
   .verdict b{color:#F0C419;}
 
+  .pro-banner{
+    background:var(--paper-deep);
+    border:2px solid var(--stamp);
+    border-radius:2px;
+    padding:1.1rem 1.2rem;
+    margin-bottom:1.6rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    flex-wrap:wrap;
+  }
+  .pro-banner .txt{flex:1; min-width:200px;}
+  .pro-banner .eyebrow-pro{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    margin:0 0 0.3rem;
+  }
+  .pro-banner p{margin:0; font-size:0.86rem; color:var(--ink-soft);}
+  .pro-banner a.pro-btn{
+    display:inline-block;
+    background:var(--stamp);
+    color:var(--paper);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    font-weight:600;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    text-decoration:none;
+    padding:0.7rem 1.1rem;
+    border:2px solid var(--ink);
+    white-space:nowrap;
+  }
+
   details{
     background:var(--paper-deep);
     border:1px solid var(--line);
@@ -355,6 +392,14 @@
         <div class="amount" id="b-neto">—</div>
       </div>
     </div>
+  </div>
+
+  <div class="pro-banner">
+    <div class="txt">
+      <p class="eyebrow-pro">Slobodnjak Pro</p>
+      <p>Dosadno je da ovo računaš ručno svaki kvartal? Pro verzija pamti tvoje prihode, računa Model A/B automatski i generiše PDF izveštaj za knjigovođu.</p>
+    </div>
+    <a href="pro/login.html" class="pro-btn">Isprobaj Pro →</a>
   </div>
 
   <details>

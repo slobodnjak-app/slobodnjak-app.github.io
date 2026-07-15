@@ -52,6 +52,19 @@
     cursor: pointer;
     color: var(--ink);
   }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  #deleteAccountLink {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: #8a8578;
+    text-decoration: none;
+    border-bottom: 1px dotted #8a8578;
+  }
+  #deleteAccountLink:hover { color: var(--stamp); border-bottom-color: var(--stamp); }
   .wrap { max-width: 720px; margin: 0 auto; }
   .card {
     background: #fffdf7;
@@ -163,7 +176,10 @@
 
 <header>
   <div class="brand">SLOBODNJAK <span>PRO</span></div>
-  <button id="logoutBtn">Odjavi se</button>
+  <div class="header-actions">
+    <a id="deleteAccountLink" href="delete-account.html">Obriši nalog</a>
+    <button id="logoutBtn">Odjavi se</button>
+  </div>
 </header>
 
 <div class="wrap">

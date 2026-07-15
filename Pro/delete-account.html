@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slobodnjak Pro — Brisanje naloga</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --paper: #F5EFDD;
+    --ink: #1E2A38;
+    --stamp: #A32638;
+    --ruled: #2F5D8C;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--paper);
+    background-image: linear-gradient(var(--ruled) 1px, transparent 1px);
+    background-size: 100% 34px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: var(--paper);
+    border: 2px solid var(--stamp);
+    max-width: 460px;
+    width: 100%;
+    padding: 32px 28px;
+    position: relative;
+    box-shadow: 6px 6px 0 var(--stamp);
+  }
+  .rubrika {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--stamp);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 22px;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  p.sub {
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: #4a5568;
+    line-height: 1.5;
+  }
+  .lista-brisanja {
+    background: rgba(163,38,56,0.06);
+    border-left: 3px solid var(--stamp);
+    padding: 14px 16px;
+    margin-bottom: 18px;
+  }
+  .lista-brisanja b {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--stamp);
+    margin-bottom: 8px;
+  }
+  .lista-brisanja ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  .no-recovery {
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 12px 14px;
+    background: var(--ink);
+    color: var(--paper);
+    margin-bottom: 22px;
+  }
+  .no-recovery b { color: #ffb4b4; }
+  label {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ruled);
+    margin-bottom: 6px;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    border: 2px solid var(--ink);
+    background: #fffdf7;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--stamp);
+  }
+  button {
+    width: 100%;
+    padding: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--stamp);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  button:active { transform: translate(2px, 2px); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .status {
+    margin-top: 16px;
+    font-size: 14px;
+    padding: 12px;
+    border-left: 3px solid var(--ruled);
+    background: rgba(47,93,140,0.08);
+    display: none;
+    line-height: 1.5;
+  }
+  .status.show { display: block; }
+  .status.error {
+    border-left-color: var(--stamp);
+    background: rgba(163,38,56,0.08);
+  }
+  .status.success {
+    border-left-color: #2f7d4f;
+    background: rgba(47,125,79,0.08);
+  }
+  .footer-link {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 12px;
+  }
+  .footer-link a {
+    color: var(--ruled);
+    text-decoration: underline;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .stamp-mark {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid var(--stamp);
+    color: var(--stamp);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    text-align: center;
+    transform: rotate(12deg);
+    background: var(--paper);
+    line-height: 1.2;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="stamp-mark">TRAJNO<br>BRISANJE</div>
+  <div class="rubrika">Rubrika — Nalog</div>
+  <h1>Brisanje naloga</h1>
+  <p class="sub">Ovo trajno briše tvoj Slobodnjak Pro nalog i sve podatke vezane za njega.</p>
+
+  <div class="lista-brisanja">
+    <b>Šta će biti obrisano</b>
+    <ul>
+      <li>Svi uneseni prihodi i kvartalni podaci</li>
+      <li>Podešavanja naloga (model, opština, godina registracije)</li>
+      <li>Tvoja email adresa i pristup nalogu</li>
+    </ul>
+  </div>
+
+  <div class="no-recovery">
+    <b>Nema povratka.</b> Nakon brisanja podaci se ne mogu vratiti ni od strane korisnika ni od strane administratora. Ako samo želiš pauzu, dovoljno je da se odjaviš — ne moraš da brišeš nalog.
+  </div>
+
+  <form id="deleteForm">
+    <label for="potvrda">Da potvrdiš, upiši reč OBRIŠI</label>
+    <input type="text" id="potvrda" placeholder="OBRIŠI" autocomplete="off" required>
+    <button type="submit" id="deleteBtn">Obriši nalog zauvek</button>
+  </form>
+
+  <div class="status" id="status"></div>
+
+  <div class="footer-link">
+    <a href="dashboard.html">← Nazad na dashboard</a>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://dmrejgihlcxobcztbwgb.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtcmVqZ2lobGN4b2JjenRid2diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM4ODM5NTUsImV4cCI6MjA5OTQ1OTk1NX0.IrVZbozjziiOUpgUAQIGtvGW54O3UkJk2HD03D3CWQs';
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const form = document.getElementById('deleteForm');
+  const potvrdaInput = document.getElementById('potvrda');
+  const deleteBtn = document.getElementById('deleteBtn');
+  const statusEl = document.getElementById('status');
+
+  function showStatus(message, type) {
+    statusEl.textContent = message;
+    statusEl.className = 'status show ' + type;
+  }
+
+  // Ako korisnik nije ulogovan, nema šta ovde da traži
+  supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    if (!session) {
+      window.location.href = 'login.html';
+    }
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (potvrdaInput.value.trim().toUpperCase() !== 'OBRIŠI') {
+      showStatus('Upiši tačno reč OBRIŠI da potvrdiš.', 'error');
+      return;
+    }
+
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = 'Brišem...';
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+      showStatus('Sesija je istekla. Prijavi se ponovo.', 'error');
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = 'Obriši nalog zauvek';
+      return;
+    }
+
+    try {
+      const { data, error } = await supabaseClient.functions.invoke('delete-account', {
+        headers: { Authorization: 'Bearer ' + session.access_token }
+      });
+
+      if (error) {
+        showStatus('Greška: ' + error.message, 'error');
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = 'Obriši nalog zauvek';
+        return;
+      }
+
+      await supabaseClient.auth.signOut();
+      showStatus('Nalog je obrisan. Preusmeravam...', 'success');
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 2000);
+    } catch (err) {
+      showStatus('Greška: ' + String(err), 'error');
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = 'Obriši nalog zauvek';
+    }
+  });
+</script>
+
+</body>
+</html>

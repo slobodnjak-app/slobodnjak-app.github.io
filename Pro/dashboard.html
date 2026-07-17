@@ -170,6 +170,21 @@
   .empty-note { font-size: 13px; color: #6b7280; padding: 8px 0; }
   .status { display:none; margin-top:10px; font-size:13px; padding:10px; border-left:3px solid var(--stamp); background:rgba(163,38,56,0.08); }
   .status.show { display:block; }
+  .delete-entry-btn {
+    background: none;
+    border: 1px solid #A32638;
+    color: #A32638;
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  .delete-entry-btn:hover {
+    background: #A32638;
+    color: #F5EFDD;
+  }
 </style>
 </head>
 <body>
@@ -254,7 +269,7 @@
     <h2>Svi uneti prihodi</h2>
     <table id="historyTable">
       <thead>
-        <tr><th>Datum</th><th>Iznos</th><th>Izvor</th><th>Kv.</th></tr>
+        <tr><th>Datum</th><th>Iznos</th><th>Izvor</th><th>Kv.</th><th></th></tr>
       </thead>
       <tbody id="historyBody"></tbody>
     </table>
@@ -423,10 +438,26 @@
     empty.style.display = 'none';
     allPrihodi.forEach(p => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${p.datum}</td><td>${Math.round(p.iznos).toLocaleString('sr-RS')} ${p.valuta}</td><td>${p.izvor || '—'}</td><td>K${p.kvartal}</td>`;
+      tr.innerHTML = `<td>${p.datum}</td><td>${Math.round(p.iznos).toLocaleString('sr-RS')} ${p.valuta}</td><td>${p.izvor || '—'}</td><td>K${p.kvartal}</td><td><button class="delete-entry-btn" data-id="${p.id}" title="Obriši unos">✕</button></td>`;
       body.appendChild(tr);
     });
   }
+
+  async function deleteEntry(id){
+    if (!confirm('Obrisati ovaj unos? Ovo se ne može vratiti.')) return;
+    const { error } = await supabaseClient.from('prihodi').delete().eq('id', id);
+    if (error){
+      alert('Greška pri brisanju: ' + error.message);
+      return;
+    }
+    await loadAll();
+  }
+
+  document.getElementById('historyBody').addEventListener('click', (e) => {
+    const btn = e.target.closest('.delete-entry-btn');
+    if (!btn) return;
+    deleteEntry(btn.dataset.id);
+  });
 
   let currentQuarterData = null;
 
